@@ -1,36 +1,209 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Title
 
-## Getting Started
+**Live Demo:** [Insert Live Link Here](#)
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Table of Contents
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Technologies Used](#technologies-used)
+4. [Setup Instructions](#setup-instructions)
+5. [Deployment Process](#deployment-process)
+6. [API Documentation](#api-documentation)
+7. [Additional Notes](#additional-notes)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Introduction
 
-## Learn More
+This is a task management application that allows users to register, log in, and manage tasks efficiently using a simple CRUD API.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- User authentication (Sign in and Sign up)
+- Create, read, update, and delete tasks
+- Responsive and intuitive user interface
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technologies Used
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Node.js
+- Next.js
+- React
+- MongoDB
+
+---
+
+## Setup Instructions
+
+### Prerequisites
+- **Node.js** vXX.X.X+
+- **MongoDB** server setup
+- Environment variables defined in a `.env` file
+
+### Step-by-Step Guide:
+1. Clone this repository:
+    ```bash
+    git clone https://github.com/your-repo-name.git
+    cd your-repo-name
+    ```
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+3. Set up the environment variables:
+    - Create a `.env.local` file in the root directory and add:
+        ```env
+        DATABASE_URL=<your_database_url>
+        JWT_SECRET=<your_secret_key>
+        ```
+4. Start the development server:
+    ```bash
+    npm run dev
+    ```
+    Visit [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Deployment Process
+
+### Prepare for deployment:
+1. Build the application for production:
+    ```bash
+    npm run build
+    ```
+
+2. Deploy to the server/cloud platform:
+    - Examples: Vercel, Netlify, or custom servers.
+
+3. Environment Variables:
+    - Upload/configure the `.env` variables in your hosting environment.
+
+4. Start the application (for custom servers):
+    ```bash
+    npm start
+    ```
+
+5. Verify:
+    - Visit your live app URL and verify functionality.
+
+---
+
+## API Documentation
+
+### Base URL:
+```plaintext
+http://localhost:3000/
+Endpoints:
+Authentication
+POST /auth/signin
+
+Description: Sign in an existing user.
+
+Request Body:
+
+json
+{
+    "email": "user@example.com",
+    "password": "securepassword"
+}
+Response:
+
+json
+{
+    "token": "your-jwt-token",
+    "user": {
+        "id": "user-id",
+        "email": "user@example.com"
+    }
+}
+POST /auth/signup
+
+Description: Register a new user.
+
+Request Body:
+
+json
+{
+    "email": "user@example.com",
+    "password": "securepassword"
+}
+Response:
+
+json
+{
+    "message": "User created successfully"
+}
+Task Management
+POST /toDo/create
+
+Description: Create a new task.
+
+Request Body:
+
+json
+{
+    "title": "New Task",
+    "description": "Task description"
+}
+Response:
+
+json
+{
+    "message": "Task created successfully",
+    "task": {
+        "id": "task-id",
+        "title": "New Task",
+        "description": "Task description"
+    }
+}
+GET /toDo/read
+
+Description: Get all tasks.
+
+Response:
+
+json
+[
+    {
+        "id": "task-id",
+        "title": "Task Title",
+        "description": "Task description"
+    }
+]
+PUT /toDo/update?taskId={taskId}
+
+Description: Update a task.
+
+Request Body: Fields to update:
+
+json
+{
+    "title": "Updated Task Title"
+}
+Response:
+
+json
+{
+    "message": "Task updated successfully"
+}
+DELETE /toDo/delete?taskId={taskId}
+
+Description: Delete a task.
+
+Response:
+
+json
+{
+    "message": "Task deleted successfully"
+}
+Additional Notes
+Ensure all environment variables are configured correctly.
+
+Follow secure practices when setting up your database and handling sensitive data.
+
