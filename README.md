@@ -11,8 +11,6 @@
 3. [Technologies Used](#technologies-used)
 4. [Setup Instructions](#setup-instructions)
 5. [Deployment Process](#deployment-process)
-6. [API Documentation](#api-documentation)
-7. [Additional Notes](#additional-notes)
 
 ---
 
@@ -94,113 +92,7 @@ This is a task management application that allows users to register, log in, and
 
 ---
 
-## API Documentation
 
-### Base URL:
-```plaintext
-http://localhost:3000/
-Endpoints:
-Authentication
-POST /auth/signin
-
-Description: Sign in an existing user.
-
-Request Body:
-
-json
-{
-    "email": "user@example.com",
-    "password": "securepassword"
-}
-Response:
-
-json
-{
-    "token": "your-jwt-token",
-    "user": {
-        "id": "user-id",
-        "email": "user@example.com"
-    }
-}
-POST /auth/signup
-
-Description: Register a new user.
-
-Request Body:
-
-json
-{
-    "email": "user@example.com",
-    "password": "securepassword"
-}
-Response:
-
-json
-{
-    "message": "User created successfully"
-}
-Task Management
-POST /toDo/create
-
-Description: Create a new task.
-
-Request Body:
-
-json
-{
-    "title": "New Task",
-    "description": "Task description"
-}
-Response:
-
-json
-{
-    "message": "Task created successfully",
-    "task": {
-        "id": "task-id",
-        "title": "New Task",
-        "description": "Task description"
-    }
-}
-GET /toDo/read
-
-Description: Get all tasks.
-
-Response:
-
-json
-[
-    {
-        "id": "task-id",
-        "title": "Task Title",
-        "description": "Task description"
-    }
-]
-PUT /toDo/update?taskId={taskId}
-
-Description: Update a task.
-
-Request Body: Fields to update:
-
-json
-{
-    "title": "Updated Task Title"
-}
-Response:
-
-json
-{
-    "message": "Task updated successfully"
-}
-DELETE /toDo/delete?taskId={taskId}
-
-Description: Delete a task.
-
-Response:
-
-json
-{
-    "message": "Task deleted successfully"
 }
 Additional Notes
 Ensure all environment variables are configured correctly.
