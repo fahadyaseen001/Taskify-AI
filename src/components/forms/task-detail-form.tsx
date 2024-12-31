@@ -1,13 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Calendar } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Calendar, Edit2, X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Popover,
@@ -22,19 +20,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from "@/components/ui/card";
 import { useUpdateTaskForm } from "@/hooks/use-update-task";
-
-interface TaskFormData {
-  title: string;
-  description: string;
-  priority: number;
-  dueDate: string;
-  isCompleted: boolean;
-}
+import { formatDate } from "../dashboard/dashboard-utils/date-format";
+import { convertTo24Hour } from "../dashboard/dashboard-utils/time-format";
+import Loader from "../pages/loader";
 
 const TaskDetailForm = () => {
   const params = useParams();
   const taskId = params?.id as string || '';
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   
   const {
     formData,
@@ -43,39 +39,74 @@ const TaskDetailForm = () => {
     isFormValid,
     handleInputChange,
     handleSubmit,
-    resetForm
+    setFormData
   } = useUpdateTaskForm();
 
   useEffect(() => {
     if (taskId) {
-      sessionStorage.setItem('taskId', taskId);  // Store the taskId in sessionStorage
+      sessionStorage.setItem('taskId', taskId);
     }
   }, [taskId]);
 
   useEffect(() => {
-    const taskData = sessionStorage.getItem(`task-${taskId}`);
-    if (taskData) {
-      const parsedData = JSON.parse(taskData);
-      resetForm();
-      Object.keys(parsedData).forEach(key => {
-        if (key in formData) {
-          handleInputChange(key as keyof TaskFormData, parsedData[key]);
+    const loadTaskData = async () => {
+      const taskData = sessionStorage.getItem(`task-${taskId}`);
+      if (taskData) {
+        try {
+          const parsedData = JSON.parse(taskData);
+          const newFormData = {
+            ...formData,
+            ...parsedData,
+            status: parsedData.status?.toString() || '',
+            priority: parsedData.priority?.toString() || '',
+          };
+          setFormData(newFormData);
+          setInitialDataLoaded(true);
+        } catch (error) {
+          console.error('Error parsing task data:', error);
         }
-      });
-    }
+      }
+    };
+
+    loadTaskData();
   }, [taskId]);
 
-  const handleSubmitWrapper = (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSubmit();
+    setIsEditMode(false);
   };
+
+  if (!initialDataLoaded) {
+    return <div className="w-full max-w-4xl mx-auto p-6">Loading...</div>;
+  }
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardContent>
-        <form onSubmit={handleSubmitWrapper} className="p-6 space-y-6">
-          <div className="text-2xl font-bold mb-6">Update Task</div>
-          
+        <form onSubmit={onSubmit} className="p-6 space-y-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-2xl font-bold">Task Details</div>
+            <Button
+              type="button"
+              variant={isEditMode ? "destructive" : "default"}
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="w-24"
+            >
+              {isEditMode ? (
+                <>
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Edit
+                </>
+              )}
+            </Button>
+          </div>
+
           {/* First Row */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -87,32 +118,34 @@ const TaskDetailForm = () => {
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="Enter task title"
-                disabled={isLoading}
+                disabled={!isEditMode || isLoading}
               />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+              {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="priority" className="text-sm font-medium">
-                Priority Level
+                Priority
               </Label>
               <Select
-                value={formData.priority.toString()}
-                onValueChange={(value) => handleInputChange('priority', parseInt(value, 10))}
-                disabled={isLoading}
+                value={formData.priority}
+                onValueChange={(value) => handleInputChange('priority', value)}
+                disabled={!isEditMode || isLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger id="priority">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
+                  {['High', 'Medium', 'Low'].map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      {priority}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority}</p>}
+              {errors.priority && (
+                <p className="text-sm text-red-500">{errors.priority}</p>
+              )}
             </div>
           </div>
 
@@ -128,9 +161,11 @@ const TaskDetailForm = () => {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 className="h-24"
                 placeholder="Enter task description"
-                disabled={isLoading}
+                disabled={!isEditMode || isLoading}
               />
-              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -142,11 +177,11 @@ const TaskDetailForm = () => {
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal"
-                    disabled={isLoading}
+                    disabled={!isEditMode || isLoading}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
                     {formData.dueDate ? (
-                      new Date(formData.dueDate).toLocaleDateString()
+                      formatDate(formData.dueDate)
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -156,39 +191,98 @@ const TaskDetailForm = () => {
                   <CalendarComponent
                     mode="single"
                     selected={formData.dueDate ? new Date(formData.dueDate) : undefined}
-                    onSelect={(date) => handleInputChange('dueDate', date?.toISOString() || '')}
+                    onSelect={(date) => {
+                      if (date) {
+                        const localDate = new Date(date.setHours(12, 0, 0, 0));
+                        const userTimezoneOffset = localDate.getTimezoneOffset() * 60000;
+                        const adjustedDate = new Date(localDate.getTime() - userTimezoneOffset);
+                        handleInputChange('dueDate', adjustedDate.toISOString());
+                      } else {
+                        handleInputChange('dueDate', '');
+                      }
+                    }}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              {errors.dueDate && <p className="text-red-500 text-sm mt-1">{errors.dueDate}</p>}
+              {errors.dueDate && (
+                <p className="text-sm text-red-500">{errors.dueDate}</p>
+              )}
             </div>
           </div>
 
           {/* Third Row */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isCompleted"
-                checked={formData.isCompleted}
-                onCheckedChange={(checked) => 
-                  handleInputChange('isCompleted', checked === true)
-                }
-                disabled={isLoading}
-              />
-              <Label htmlFor="isCompleted" className="text-sm font-medium">
-                Mark as completed
+          <div className="grid grid-cols-3 gap-6">
+
+
+
+          <div className="space-y-2">
+              <Label htmlFor="dueTime" className="text-sm font-medium">
+                Due Time
               </Label>
+              <div className="flex items-center space-x-2">
+              <Input
+              type="time"
+              id="dueTime"
+              value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
+              onChange={(e) => handleInputChange('dueTime', e.target.value)}
+              className={`flex-1 ${
+                !formData.dueTime
+                  ? 'text-gray-400' // For both light and dark modes, empty input text is gray
+                  : 'text-black dark:text-white' // In light mode, filled input text is black; in dark mode, filled input text is white
+              }`}
+              disabled={!isEditMode || isLoading}
+               />
+
+              </div>
+              {errors.dueTime && (
+                <p className="text-sm text-red-500">{errors.dueTime}</p>
+              )}
             </div>
-            
-            <div className="space-x-4">
-              <Button 
-                type="submit"
-                variant="default"
-                disabled={isLoading || !isFormValid}
+
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-sm font-medium">
+                Status
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => handleInputChange('status', value)}
+                disabled={!isEditMode || isLoading}
               >
-                {isLoading ? "Updating Task..." : "Update Task"}
-              </Button>
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {['Completed', 'In Progress', 'Todo', 'BackLog', 'Cancelled'].map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.status && (
+                <p className="text-sm text-red-500">{errors.status}</p>
+              )}
+            </div>
+
+            <div className="flex justify-end items-end">
+              {isEditMode && (
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-50"
+                  disabled={!isFormValid || isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                  <Loader /> 
+                      Updating Task...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </form>

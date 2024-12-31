@@ -1,4 +1,3 @@
-// hooks/useSignIn.ts
 import { useToast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";
 import { z } from "zod";
@@ -9,7 +8,6 @@ interface ErrorResponse {
   error: string;
 }
 
-// Only include email and password for signin
 type SignInFormData = Pick<z.infer<typeof userSchema>, 'email' | 'password'>;
 
 interface SignInResponse {
@@ -19,38 +17,39 @@ interface SignInResponse {
 export const useSignIn = () => {
   const { toast } = useToast();
 
-  const signIn = async (data: SignInFormData) => {
+  const signIn = async (data: SignInFormData): Promise<boolean> => {
     try {
-
-      // Make the API call after the delay
       const response = await AxiosInstance.post<SignInResponse>('/api/auth/signin', {
         email: data.email,
         password: data.password
       });
-      
+
       const token = response.data.token;
       localStorage.setItem('token', token);
-      
-      
+
       toast({
         title: "Sign In Successful 🎉",
         description: "You have successfully signed in to your account."
       });
+
+      return true; // Return true on successful sign in
     } catch (error) {
       let errorMessage = "An error occurred during sign in";
-      
+
       if (error instanceof AxiosError) {
         const errorData = error.response?.data as ErrorResponse;
         if (errorData?.error) {
           errorMessage = errorData.error;
         }
       }
-      
+
       toast({
         title: "Sign In Failed 👎",
         description: errorMessage,
         variant: "destructive"
       });
+
+      return false; // Return false when sign in fails
     }
   };
 

@@ -4,7 +4,7 @@ import mongoose, { Types } from 'mongoose';
 
 // Create ToDo item
 export const createToDo = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const { title, description, dueDate, priority , isCompleted } = req.body;
+  const { title, description, dueDate,dueTime, priority , status } = req.body;
   const userIdString: string | undefined = req.userId; 
 
   if (!userIdString) {
@@ -18,8 +18,9 @@ export const createToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
       title,
       description,
       dueDate,
+      dueTime,
       priority,
-      isCompleted,
+      status,
       userId, 
     
     });

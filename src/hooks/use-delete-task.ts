@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosInstance from "@/lib/axios-instance";
 import { toast } from "@/hooks/use-toast";
-import { ToDoItem } from "@/components/dashboard/columns";
+import { ToDoItem } from "@/components/dashboard/dashboard-components/columns";
 
 const deleteToDoItem = async (id: string) => {
   const token = localStorage.getItem("token");

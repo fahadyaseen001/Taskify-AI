@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import { z } from "zod";
 import { userSchema } from "@/schema/user-schema";
 import AxiosInstance from "@/lib/axios-instance";
-import { useUser } from "@/components/tanstack-query/user-provider";
+import { useUser } from "@/components/providers/user-provider";
 
 interface ErrorResponse {
   error: string;

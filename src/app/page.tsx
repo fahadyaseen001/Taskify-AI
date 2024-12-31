@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Lottie from "lottie-react";
 import Todo from "./Todo.json";
-import { UserProvider } from '@/components/tanstack-query/user-provider';
+import { UserProvider } from '@/components/providers/user-provider';
 
 export default function Home() {
   const router = useRouter();

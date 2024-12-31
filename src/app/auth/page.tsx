@@ -1,4 +1,3 @@
-"use client"
 
 
 import AuthTabs from "@/components/auth/auth-tab";

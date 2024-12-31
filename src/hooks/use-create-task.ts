@@ -8,9 +8,10 @@ import { useQueryClient } from "@tanstack/react-query";  // Import useQueryClien
 interface TodoFormData {
   title: string;
   description: string;
-  isCompleted: boolean;
-  dueDate: Date;
-  priority: number | undefined;
+  status: string;
+  dueDate: string;
+  dueTime: string;  // Separate time field
+  priority: string ;
 }
 
 interface ErrorResponse {
@@ -22,7 +23,7 @@ interface UseTodoFormReturn {
   errors: Partial<Record<keyof TodoFormData, string>>;
   isLoading: boolean;
   isFormValid: boolean;
-  handleInputChange: (field: keyof TodoFormData, value: string | boolean | number | undefined) => void;
+  handleInputChange: (field: keyof TodoFormData, value: string) => void;
   handleSubmit: () => Promise<void>;
   resetForm: () => void;
 }
@@ -30,9 +31,10 @@ interface UseTodoFormReturn {
 const initialFormData: TodoFormData = {
   title: '',
   description: '',
-  isCompleted: false,
-  dueDate: new Date(),
-  priority: undefined,
+  status: '',
+  dueDate: '',  // Changed from Date to string
+  dueTime: '',  // Initialize empty time
+  priority: '',
 };
 
 export const useTodoForm = (): UseTodoFormReturn => {
@@ -46,10 +48,12 @@ export const useTodoForm = (): UseTodoFormReturn => {
 
   const validateForm = () => {
     const newErrors: Partial<Record<keyof TodoFormData, string>> = {};
-    if (!formData.title?.trim()) newErrors.title = 'Required';
-    if (!formData.description?.trim()) newErrors.description = 'Required';
-    if (!formData.dueDate) newErrors.dueDate = 'Required';
-    if (!formData.priority) newErrors.priority = 'Required';
+    if (!formData.title?.trim()) newErrors.title = 'Required Title';
+    if (!formData.description?.trim()) newErrors.description = 'Required Description';
+    if (!formData.dueDate) newErrors.dueDate = 'Required Due Date';
+    if (!formData.dueTime) newErrors.dueTime = 'Required Due Time';  // Separate time validation
+    if (!formData.priority) newErrors.priority = 'Required Priority';
+    if (!formData.status) newErrors.status = 'Required Status';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -59,26 +63,44 @@ export const useTodoForm = (): UseTodoFormReturn => {
       formData.title?.trim() &&
       formData.description?.trim() &&
       formData.dueDate &&
-      formData.priority
+      formData.dueTime &&  // Include time in validation
+      formData.priority?.trim() &&
+      formData.status?.trim()
     );
     setIsFormValid(isValid);
   }, [formData]);
 
-  const handleInputChange = (field: keyof TodoFormData, value: string | boolean | number | undefined) => {
-    if (field === 'isCompleted') {
-      const booleanValue = value === true;
-      setFormData(prev => ({
-        ...prev,
-        [field]: booleanValue
-      }));
-      return;
-    }
-  
+ // In use-create-task.ts
+ const handleInputChange = (field: keyof TodoFormData, value: string) => {
+  if (field === 'dueDate' && value) {
+    // Get the date and adjust for timezone
+    const date = new Date(value);
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(date.getTime() - userTimezoneOffset);
+    
+    setFormData(prev => ({
+      ...prev,
+      [field]: adjustedDate.toISOString()
+    }));
+  } else if (field === 'dueTime' && value) {
+    // Convert 24-hour time to 12-hour format with AM/PM
+    const [hours, minutes] = value.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    const formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+    
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedTime
+    }));
+  } else {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }
+};
 
   const resetForm = () => {
     setFormData(initialFormData);

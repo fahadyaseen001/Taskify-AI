@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import * as React from "react"
 import {
@@ -31,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DataTablePagination } from "@/components/dashboard/data-table-pagination"
+import { DataTablePagination } from "@/components/dashboard/dashboard-components/data-table-pagination"
 import { LuSettings2 } from "react-icons/lu" // Import the icon
 
 interface DataTableProps<TData, TValue> {
@@ -97,10 +97,10 @@ export function DataTable<TData, TValue>({
                   className="capitalize"
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) =>
-                    column.toggleVisibility(!!value)
+                  column.toggleVisibility(!!value)
                   }
                 >
-                  {column.id === "isCompleted" ? "Status" : column.id}
+                  {column.id}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>

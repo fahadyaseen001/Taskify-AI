@@ -1,11 +1,8 @@
-"use client"
-
 import React from 'react';
 import { Calendar } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Popover,
@@ -22,6 +19,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTodoForm } from '@/hooks/use-create-task';
+import { formatDate } from '../dashboard/dashboard-utils/date-format';
+import { convertTo24Hour } from '../dashboard/dashboard-utils/time-format';
+import Loader from '../pages/loader';
 
 const TaskForm = () => {
   const {
@@ -43,7 +43,7 @@ const TaskForm = () => {
       <CardContent>
         <form onSubmit={onSubmit} className="p-6 space-y-6">
           <div className="text-2xl font-bold mb-6">Create New Task</div>
-          
+
           {/* First Row */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -62,25 +62,27 @@ const TaskForm = () => {
 
             <div className="space-y-2">
               <Label htmlFor="priority" className="text-sm font-medium">
-                Priority Level
+                Priority
               </Label>
               <Select
-                value={formData.priority?.toString()}
-                onValueChange={(value) => handleInputChange('priority', parseInt(value))}
+                value={formData.priority}
+                onValueChange={(value) => handleInputChange('priority', value)}
                 disabled={isLoading}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5,6,7,8,9,10].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                    {num}
+                  {['High', 'Medium', 'Low'].map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      {priority}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.priority && <p className="text-sm text-red-500">{errors.priority}</p>}
+              {errors.priority && (
+                <p className="text-sm text-red-500">{errors.priority}</p>
+              )}
             </div>
           </div>
 
@@ -98,7 +100,9 @@ const TaskForm = () => {
                 placeholder="Enter task description"
                 disabled={isLoading}
               />
-              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -114,65 +118,111 @@ const TaskForm = () => {
                   >
                     <Calendar className="mr-2 h-4 w-4" />
                     {formData.dueDate ? (
-                      new Date(formData.dueDate).toLocaleDateString()
+                      formatDate(formData.dueDate)
                     ) : (
-                      <span>Pick a date</span>
+                      <span className="text-gray-400">Pick a date</span>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <CalendarComponent
                     mode="single"
-                    selected={new Date(formData.dueDate)}
-                    onSelect={(date) => handleInputChange('dueDate', date?.toISOString())}
+                    selected={formData.dueDate ? new Date(formData.dueDate) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Set time to noon to avoid timezone issues
+                        const localDate = new Date(date.setHours(12, 0, 0, 0));
+                        const userTimezoneOffset = localDate.getTimezoneOffset() * 60000;
+                        const adjustedDate = new Date(localDate.getTime() - userTimezoneOffset);
+
+                        handleInputChange('dueDate', adjustedDate.toISOString());
+                      } else {
+                        handleInputChange('dueDate', '');
+                      }
+                    }}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              {errors.dueDate && <p className="text-sm text-red-500">{errors.dueDate}</p>}
+              {errors.dueDate && (
+                <p className="text-sm text-red-500">{errors.dueDate}</p>
+              )}
             </div>
           </div>
 
           {/* Third Row */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isCompleted"
-                checked={formData.isCompleted}
-                onCheckedChange={(checked) => 
-                    handleInputChange('isCompleted', checked === true)
+          <div className="grid grid-cols-3 gap-6">
 
-                }
-                disabled={isLoading}
-              />
-              <Label htmlFor="isCompleted" className="text-sm font-medium">
-                Mark as completed
+
+          <div className="space-y-2">
+              <Label htmlFor="dueTime" className="text-sm font-medium">
+                Due Time
               </Label>
+              <div className="flex items-center space-x-2">
+               <Input
+              type="time"
+              id="dueTime"
+              value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
+              onChange={(e) => handleInputChange('dueTime', e.target.value)}
+              className={`flex-1 ${
+                !formData.dueTime
+                  ? 'text-gray-400' // For both light and dark modes, empty input text is gray
+                  : 'text-black dark:text-white' // In light mode, filled input text is black; in dark mode, filled input text is white
+              }`}
+              disabled={isLoading}
+               />
+
+              </div>
+              {errors.dueTime && (
+                <p className="text-sm text-red-500">{errors.dueTime}</p>
+              )}
             </div>
+
+
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-sm font-medium">
+                Status
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => handleInputChange('status', value)}
+                disabled={isLoading}
+              >
+                <SelectTrigger className="focus:outline-none focus:border-initial">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent position="item-aligned">
+                  {['Completed', 'In Progress', 'Todo', 'BackLog', 'Cancelled'].map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.status && (
+                <p className="text-sm text-red-500">{errors.status}</p>
+              )}
+            </div>
+
             
-            <Button 
-              type="submit"
-              variant="default" 
-              className="w-50"
-              disabled={!isFormValid || isLoading}
-            >
-             {isLoading ? (
-              <>
-                <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500 dark:text-black-500" 
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Creating Task...
-              </>
-            ) : (
-              "Create Task"
-            )}
-            </Button>
+
+            <div className="flex justify-end items-end">
+              <Button
+                type="submit"
+                variant="default"
+                className="w-50"
+                disabled={!isFormValid || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                   <Loader /> 
+                    Creating Task...
+                  </>
+                ) : (
+                  'Create Task'
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </CardContent>

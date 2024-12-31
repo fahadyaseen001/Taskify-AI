@@ -1,4 +1,3 @@
-"use-client"
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -6,8 +5,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeToggleButton } from "@/components/theme/theme-toggle-button";
 import { Toaster } from "@/components/ui/toaster";
-import ReactQueryProvider from "@/components/tanstack-query/query-provider";
-import { UserProvider } from "@/components/tanstack-query/user-provider";
+import ReactQueryProvider from "@/components/providers/query-provider";
+import { UserProvider } from "@/components/providers/user-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +16,7 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  
 });
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       > <UserProvider>
-                <ReactQueryProvider>
+        <ReactQueryProvider>
 
        <ThemeProvider
             attribute="class"

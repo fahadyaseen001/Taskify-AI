@@ -9,9 +9,10 @@ interface TodoApiResponse {
   _id: string;
   title: string;
   description: string;
-  isCompleted: boolean;
+  status: string;
   dueDate: string;
-  priority: number;
+  dueTime: string;  // Separate time field in API response
+  priority: string;
 }
 
 // Frontend Todo Item Type (with id)
@@ -19,9 +20,10 @@ interface ToDoItem {
   id: string;
   title: string;
   description: string;
-  isCompleted: boolean;
+  status: string;
   dueDate: string;
-  priority: number;
+  dueTime: string;  // Separate time field in frontend
+  priority: string;
 }
 
 const fetchToDoItems = async (): Promise<ToDoItem[]> => {
@@ -38,8 +40,9 @@ const fetchToDoItems = async (): Promise<ToDoItem[]> => {
     id: item._id,
     title: item.title,
     description: item.description,
-    isCompleted: item.isCompleted,
+    status: item.status,
     dueDate: item.dueDate,
+    dueTime: item.dueTime,  // Pass through the time field
     priority: item.priority,
   }));
 };

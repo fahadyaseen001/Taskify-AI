@@ -5,7 +5,7 @@ import mongoose, { Types } from 'mongoose';
 
 // Update ToDo item
 export const updateToDo = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const { title, description, dueDate, priority, isCompleted } = req.body;
+  const { title, description, dueDate,dueTime, priority, status } = req.body;
   const { id } = req.query; // id of the To-Do from URL (req.query.id)
   const userIdString: string | undefined = req.userId;
 
@@ -29,8 +29,9 @@ export const updateToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
     todoToUpdate.title = title || todoToUpdate.title;
     todoToUpdate.description = description || todoToUpdate.description;
     todoToUpdate.dueDate = dueDate || todoToUpdate.dueDate;
+    todoToUpdate.dueTime = dueTime || todoToUpdate.dueTime;
     todoToUpdate.priority = priority || todoToUpdate.priority;
-    todoToUpdate.isCompleted = isCompleted !== undefined ? isCompleted : todoToUpdate.isCompleted;
+    todoToUpdate.status = status || todoToUpdate.status;
 
     // Save the updated To-Do item
     await todoToUpdate.save();

@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,  
   },
-  images: {
-    domains: ['fonts.googleapis.com'],  
-  },
   typescript: {
     ignoreBuildErrors: true,  
   }

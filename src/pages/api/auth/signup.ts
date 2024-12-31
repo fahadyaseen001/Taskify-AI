@@ -4,9 +4,9 @@ import dbConnect from '@/utils/dbConnect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import allowedEmailDomains from '@/utils/allowedEmailDomains.json'; // Adjust the path if necessary
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -15,12 +15,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Validate inputs using the Zod schema
   try {
-    userSchema.parse({ name, email, password }); // Validating all fields for signup
+    userSchema.parse({ name, email, password });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }
     return res.status(500).json({ error: 'Unexpected error during validation' });
+  }
+
+  // Validate email domain
+  const emailDomain = email.split('@')[1];
+  if (!allowedEmailDomains.includes(emailDomain)) {
+    return res
+      .status(400)
+      .json({ error: `Invalid email domain '${emailDomain}'. Please use a valid email provider.` });
   }
 
   try {

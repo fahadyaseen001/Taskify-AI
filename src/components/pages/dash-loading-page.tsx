@@ -1,5 +1,5 @@
 import React from "react";
-import { UserNav } from "@/components/dashboard/user-nav";
+import { UserNav } from "@/components/dashboard/dashboard-components/user-nav";
 import SkeletonLoader from "@/components/ui/skeleton-loader";
 
 const LoadingPage: React.FC = () => {
