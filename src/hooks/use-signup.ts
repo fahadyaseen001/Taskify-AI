@@ -11,11 +11,17 @@ interface ErrorResponse {
   error: string;
 }
 
-type SignUpFormData = z.infer<typeof userSchema>;
-
 interface SignUpResponse {
   message: string;
 }
+
+interface VerifyEmailResponse {
+  message: string;
+  name: string;
+  email: string;
+}
+
+type SignUpFormData = z.infer<typeof userSchema>;
 
 export const useSignUp = () => {
   const { toast } = useToast();
@@ -23,41 +29,71 @@ export const useSignUp = () => {
 
   const signUp = async (data: SignUpFormData) => {
     try {
-      // Make the API call
-      await AxiosInstance.post<SignUpResponse>('/api/auth/signup', {
-        name: data.name,
-        email: data.email,
-        password: data.password
-      });
-      
-      // Set user data in context
-      if (data.name && data.email) {
-        setUser({ name: data.name, email: data.email });
-      } else {
-        throw new Error("Name or email is null");
-      }
+      // Call the signup API
+      const response = await AxiosInstance.post<SignUpResponse>(
+        "/api/auth/signup",
+        {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }
+      );
 
+      // Inform user to verify their email
       toast({
-        title: "Account Created Successfully 🎉",
-        description: "You have successfully created your account."
+        title: "Verify Email ✉️",
+        description: response.data.message, // For example, "Check your email for verification."
       });
     } catch (error) {
-      let errorMessage = "An error occurred during sign up";
-      
+      // Handle signup errors
+      let errorMessage = "An error occurred during sign up.";
       if (error instanceof AxiosError) {
         const errorData = error.response?.data as ErrorResponse;
         if (errorData?.error) {
           errorMessage = errorData.error;
         }
       }
-        
+
       toast({
-        title: "Sign Up Failed 👎",
+        title: "Account Creation Failed 👎",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
-  return { signUp };
+  const verifyEmail = async (token: string) => {
+    try {
+      // Call the verify email API
+      const response = await AxiosInstance.get<VerifyEmailResponse>(
+        `/api/auth/verify-email?token=${token}`
+      );
+
+      const { name, email } = response.data;
+      // Update verified user in context
+      setUser({ name, email });
+
+      toast({
+        title: "Account Created Successfully 🎉",
+        description: "Your email has been verified, and your account is now active.",
+      });
+    } catch (error) {
+      // Handle verification errors
+      let errorMessage = "An error occurred during email verification.";
+      if (error instanceof AxiosError) {
+        const errorData = error.response?.data as ErrorResponse;
+        if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      }
+
+      toast({
+        title: "Email Verification Failed 👎",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  return { signUp, verifyEmail };
 };

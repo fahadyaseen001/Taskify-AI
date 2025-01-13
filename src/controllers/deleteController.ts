@@ -1,6 +1,6 @@
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 
 // Delete ToDo item
 export const deleteToDo = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
@@ -16,10 +16,10 @@ export const deleteToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
   }
 
   try {
-    const userId: Types.ObjectId = new mongoose.Types.ObjectId(userIdString);
 
     // Check if the ToDo belongs to the user
-    const toDo = await ToDo.findOne({ _id: id, userId });
+    const toDo = await ToDo.findOne({ _id: id, "createdBy.userId": userIdString });
+
 
     if (!toDo) {
       return res.status(404).json({ message: 'To-Do not found' });

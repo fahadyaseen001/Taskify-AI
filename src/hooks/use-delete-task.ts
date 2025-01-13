@@ -55,7 +55,7 @@ export const useDeleteToDoItem = () => {
     },
     onSuccess: () => {
       toast({
-        description: "Task deleted successfully! 🎉",
+        description: "Task deleted successfully! 🗑️",
         variant: "default",
       });
     }

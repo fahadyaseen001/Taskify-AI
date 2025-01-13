@@ -5,8 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import allowedEmailDomains from '@/utils/allowedEmailDomains.json';
-
+import allowedEmailDomains from '@/utils/mail/allowedEmailDomains.json';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'default_secret_key';
 
@@ -49,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, name: user.name, email: user.email }, 
       SECRET_KEY,
       { expiresIn: '2h' }
     );

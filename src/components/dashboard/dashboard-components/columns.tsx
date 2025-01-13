@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +17,11 @@ export interface ToDoItem {
   status: "Todo" | "Completed" | "Cancelled" | "In Progress" | "BackLog";
   dueDate: string;
   priority: "High" | "Medium" | "Low";
+  assignee?: {
+    name: string;
+    email: string;
+    userId: string;
+  };
 }
 
 const formatTaskId = (id: string) => {
@@ -122,6 +127,21 @@ export const columns: ColumnDef<ToDoItem>[] = [
       );
     },
   },
+  {
+    accessorKey: "assignee",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Assignee" />
+    ),
+    cell: ({ row }) => {
+      const assignee = row.getValue("assignee") as ToDoItem["assignee"];
+      return (
+        <div className="flex items-center font-medium">
+            {assignee?.name || " - "}
+            </div>
+      );
+    },
+  },
+
   {
     id: "actions",
     cell: ({ row }) => <ActionCell taskId={row.original.id} taskData={row.original} />,

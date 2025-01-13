@@ -22,6 +22,7 @@ import { useTodoForm } from '@/hooks/use-create-task';
 import { formatDate } from '../dashboard/dashboard-utils/date-format';
 import { convertTo24Hour } from '../dashboard/dashboard-utils/time-format';
 import Loader from '../pages/loader';
+import Assignee from '../ui/assignee';
 
 const TaskForm = () => {
   const {
@@ -30,6 +31,7 @@ const TaskForm = () => {
     isLoading,
     isFormValid,
     handleInputChange,
+    handleAssigneeChange,
     handleSubmit,
   } = useTodoForm();
 
@@ -44,7 +46,7 @@ const TaskForm = () => {
         <form onSubmit={onSubmit} className="p-6 space-y-6">
           <div className="text-2xl font-bold mb-6">Create New Task</div>
 
-          {/* First Row */}
+          {/* Title and Priority Row */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="title" className="text-sm font-medium">
@@ -86,7 +88,7 @@ const TaskForm = () => {
             </div>
           </div>
 
-          {/* Second Row */}
+          {/* Description and Due Date Row */}
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-2">
               <Label htmlFor="description" className="text-sm font-medium">
@@ -130,14 +132,7 @@ const TaskForm = () => {
                     selected={formData.dueDate ? new Date(formData.dueDate) : undefined}
                     onSelect={(date) => {
                       if (date) {
-                        // Set time to noon to avoid timezone issues
-                        const localDate = new Date(date.setHours(12, 0, 0, 0));
-                        const userTimezoneOffset = localDate.getTimezoneOffset() * 60000;
-                        const adjustedDate = new Date(localDate.getTime() - userTimezoneOffset);
-
-                        handleInputChange('dueDate', adjustedDate.toISOString());
-                      } else {
-                        handleInputChange('dueDate', '');
+                        handleInputChange('dueDate', date.toISOString());
                       }
                     }}
                     initialFocus
@@ -150,34 +145,24 @@ const TaskForm = () => {
             </div>
           </div>
 
-          {/* Third Row */}
+          {/* Time, Status, and Assignee Row */}
           <div className="grid grid-cols-3 gap-6">
-
-
-          <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="dueTime" className="text-sm font-medium">
                 Due Time
               </Label>
-              <div className="flex items-center space-x-2">
-               <Input
-              type="time"
-              id="dueTime"
-              value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
-              onChange={(e) => handleInputChange('dueTime', e.target.value)}
-              className={`flex-1 ${
-                !formData.dueTime
-                  ? 'text-gray-400' // For both light and dark modes, empty input text is gray
-                  : 'text-black dark:text-white' // In light mode, filled input text is black; in dark mode, filled input text is white
-              }`}
-              disabled={isLoading}
-               />
-
-              </div>
+              <Input
+                type="time"
+                id="dueTime"
+                value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
+                onChange={(e) => handleInputChange('dueTime', e.target.value)}
+                className={`${!formData.dueTime ? 'text-gray-400' : 'text-black dark:text-white'}`}
+                disabled={isLoading}
+              />
               {errors.dueTime && (
                 <p className="text-sm text-red-500">{errors.dueTime}</p>
               )}
             </div>
-
 
             <div className="space-y-2">
               <Label htmlFor="status" className="text-sm font-medium">
@@ -188,10 +173,10 @@ const TaskForm = () => {
                 onValueChange={(value) => handleInputChange('status', value)}
                 disabled={isLoading}
               >
-                <SelectTrigger className="focus:outline-none focus:border-initial">
+                <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent position="item-aligned">
+                <SelectContent>
                   {['Completed', 'In Progress', 'Todo', 'BackLog', 'Cancelled'].map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
@@ -204,25 +189,34 @@ const TaskForm = () => {
               )}
             </div>
 
-            
+            <Assignee
+              value={{
+                userId: formData.assignee.userId,
+                name: formData.assignee.name,
+                email: formData.assignee.email,
+              }}
+              onValueChange={handleAssigneeChange}
+              disabled={isLoading}
+            />
+          </div>
 
-            <div className="flex justify-end items-end">
-              <Button
-                type="submit"
-                variant="default"
-                className="w-50"
-                disabled={!isFormValid || isLoading}
-              >
-                {isLoading ? (
-                  <>
-                   <Loader /> 
-                    Creating Task...
-                  </>
-                ) : (
-                  'Create Task'
-                )}
-              </Button>
-            </div>
+          {/* Submit Button */}
+          <div className="flex justify-end pt-6 mt-6">
+            <Button
+              type="submit"
+              variant="default"
+              className="w-40"
+              disabled={!isFormValid || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader />
+                  <span className="ml-2">Creating Task...</span>
+                </>
+              ) : (
+                'Create Task'
+              )}
+            </Button>
           </div>
         </form>
       </CardContent>

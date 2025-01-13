@@ -1,43 +1,60 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-// Defining the ToDo schema with additional fields (dueDate, priority, etc.)
+interface UserInfo {
+  userId: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+}
+
+const UserInfoSchema = new Schema<UserInfo>({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
+  },
+  name: { type: String, required: true },
+  email: { type: String, required: true }
+});
+
 const ToDoSchema: Schema = new Schema({
   title: {
     type: String,
-    required: true, // Title is required for a To-Do item
+    required: true,
   },
   description: {
     type: String,
-    required: false, // Optional description of the To-Do item
+    required: false,
   },
   status: {
     type: String,
-    enum: ['Completed', 'Cancelled', 'Todo', 'In Progress', 'BackLog'], // Status options
-    default: 'Todo', // Default to 'Todo'
+    enum: ['Completed', 'Cancelled', 'Todo', 'In Progress', 'BackLog'],
+    default: 'Todo',
   },
   dueDate: {
     type: String,
-    required: false, // Optional due date for the task
+    required: false,
   },
-  dueTime:{
+  dueTime: {
     type: String,
-    required: false, // Optional due date for the task
+    required: false,
   },
   priority: {
     type: String,
-    enum: ['High', 'Medium', 'Low'], // Priority options
-    default: 'Low', // Default priority set to 'Low'
+    enum: ['High', 'Medium', 'Low'],
+    default: 'Low',
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // References the User model to associate each To-Do with a specific user
-    required: true, // Each To-Do needs a user association
+  createdBy: {
+    type: UserInfoSchema,
+    required: true
   },
+  assignee: {
+    type: UserInfoSchema,
+    required: true
+  }
 }, {
-  timestamps: true, // Automatically includes createdAt and updatedAt fields
+  timestamps: true,
 });
 
-// TypeScript interface for ToDo document
 export interface ToDoType extends Document {
   title: string;
   description?: string;
@@ -45,12 +62,11 @@ export interface ToDoType extends Document {
   dueDate?: string;
   dueTime?: string;
   priority: 'High' | 'Medium' | 'Low';
-  userId: mongoose.Types.ObjectId;
+  createdBy: UserInfo;
+  assignee: UserInfo;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Create and export the ToDo model using Mongoose
 const ToDo = mongoose.models.ToDo || mongoose.model<ToDoType>('ToDo', ToDoSchema);
-
 export default ToDo;

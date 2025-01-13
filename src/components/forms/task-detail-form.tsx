@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ import { useUpdateTaskForm } from "@/hooks/use-update-task";
 import { formatDate } from "../dashboard/dashboard-utils/date-format";
 import { convertTo24Hour } from "../dashboard/dashboard-utils/time-format";
 import Loader from "../pages/loader";
+import Assignee from "../ui/assignee";
 
 const TaskDetailForm = () => {
   const params = useParams();
@@ -38,8 +39,9 @@ const TaskDetailForm = () => {
     isLoading,
     isFormValid,
     handleInputChange,
+    handleAssigneeChange,
     handleSubmit,
-    setFormData
+    initializeForm
   } = useUpdateTaskForm();
 
   useEffect(() => {
@@ -54,13 +56,16 @@ const TaskDetailForm = () => {
       if (taskData) {
         try {
           const parsedData = JSON.parse(taskData);
-          const newFormData = {
-            ...formData,
+          initializeForm({
             ...parsedData,
             status: parsedData.status?.toString() || '',
             priority: parsedData.priority?.toString() || '',
-          };
-          setFormData(newFormData);
+            assignee: parsedData.assignee || {
+              userId: '',
+              name: '',
+              email: ''
+            }
+          });
           setInitialDataLoaded(true);
         } catch (error) {
           console.error('Error parsing task data:', error);
@@ -107,7 +112,7 @@ const TaskDetailForm = () => {
             </Button>
           </div>
 
-          {/* First Row */}
+          {/* Title and Priority Row */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="title" className="text-sm font-medium">
@@ -132,7 +137,7 @@ const TaskDetailForm = () => {
                 onValueChange={(value) => handleInputChange('priority', value)}
                 disabled={!isEditMode || isLoading}
               >
-                <SelectTrigger id="priority">
+                <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,7 +154,7 @@ const TaskDetailForm = () => {
             </div>
           </div>
 
-          {/* Second Row */}
+          {/* Description and Due Date Row */}
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-2">
               <Label htmlFor="description" className="text-sm font-medium">
@@ -183,7 +188,7 @@ const TaskDetailForm = () => {
                     {formData.dueDate ? (
                       formatDate(formData.dueDate)
                     ) : (
-                      <span>Pick a date</span>
+                      <span className="text-gray-400">Pick a date</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -193,12 +198,7 @@ const TaskDetailForm = () => {
                     selected={formData.dueDate ? new Date(formData.dueDate) : undefined}
                     onSelect={(date) => {
                       if (date) {
-                        const localDate = new Date(date.setHours(12, 0, 0, 0));
-                        const userTimezoneOffset = localDate.getTimezoneOffset() * 60000;
-                        const adjustedDate = new Date(localDate.getTime() - userTimezoneOffset);
-                        handleInputChange('dueDate', adjustedDate.toISOString());
-                      } else {
-                        handleInputChange('dueDate', '');
+                        handleInputChange('dueDate', date.toISOString());
                       }
                     }}
                     initialFocus
@@ -211,30 +211,20 @@ const TaskDetailForm = () => {
             </div>
           </div>
 
-          {/* Third Row */}
+          {/* Time, Status, and Assignee Row */}
           <div className="grid grid-cols-3 gap-6">
-
-
-
-          <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="dueTime" className="text-sm font-medium">
                 Due Time
               </Label>
-              <div className="flex items-center space-x-2">
               <Input
-              type="time"
-              id="dueTime"
-              value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
-              onChange={(e) => handleInputChange('dueTime', e.target.value)}
-              className={`flex-1 ${
-                !formData.dueTime
-                  ? 'text-gray-400' // For both light and dark modes, empty input text is gray
-                  : 'text-black dark:text-white' // In light mode, filled input text is black; in dark mode, filled input text is white
-              }`}
-              disabled={!isEditMode || isLoading}
-               />
-
-              </div>
+                type="time"
+                id="dueTime"
+                value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
+                onChange={(e) => handleInputChange('dueTime', e.target.value)}
+                className={`${!formData.dueTime ? 'text-gray-400' : 'text-black dark:text-white'}`}
+                disabled={!isEditMode || isLoading}
+              />
               {errors.dueTime && (
                 <p className="text-sm text-red-500">{errors.dueTime}</p>
               )}
@@ -249,7 +239,7 @@ const TaskDetailForm = () => {
                 onValueChange={(value) => handleInputChange('status', value)}
                 disabled={!isEditMode || isLoading}
               >
-                <SelectTrigger id="status">
+                <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -265,26 +255,37 @@ const TaskDetailForm = () => {
               )}
             </div>
 
-            <div className="flex justify-end items-end">
-              {isEditMode && (
-                <Button
-                  type="submit"
-                  variant="default"
-                  className="w-50"
-                  disabled={!isFormValid || isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                  <Loader /> 
-                      Updating Task...
-                    </>
-                  ) : (
-                    'Save Changes'
-                  )}
-                </Button>
-              )}
-            </div>
+            <Assignee
+              value={{
+                userId: formData.assignee.userId,
+                name: formData.assignee.name,
+                email: formData.assignee.email,
+              }}
+              onValueChange={handleAssigneeChange}
+              disabled={!isEditMode || isLoading}
+            />
           </div>
+
+          {/* Save Button */}
+          {isEditMode && (
+            <div className="flex justify-end pt-6">
+              <Button
+                type="submit"
+                variant="default"
+                className="w-40"
+                disabled={!isFormValid || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader />
+                    <span className="ml-2">Updating...</span>
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </div>
+          )}
         </form>
       </CardContent>
     </Card>

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import allowedEmailDomains from "@/utils/allowedEmailDomains.json"; 
+import allowedEmailDomains from "@/utils/mail/allowedEmailDomains.json"; 
 
 // Define Zod schema for validation
 export const userSchema = z.object({

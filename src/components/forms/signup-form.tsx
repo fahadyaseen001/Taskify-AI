@@ -116,7 +116,7 @@ export default function SignUpForm() {
             {loading ? (
               <>
                 <Loader /> 
-                Creating Account...
+                Verifying Account...
               </>
             ) : (
               "Create Account"

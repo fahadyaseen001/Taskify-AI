@@ -1,29 +1,39 @@
-"use-client";
+'use client'
 
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import AxiosInstance from "@/lib/axios-instance";
 
-// API Response Type (with MongoDB-style _id)
+// API Response Type
 interface TodoApiResponse {
   _id: string;
   title: string;
   description: string;
   status: string;
   dueDate: string;
-  dueTime: string;  // Separate time field in API response
+  dueTime: string;
   priority: string;
+  assignee?: {
+    name: string;
+    email: string;
+    userId: string;
+  };
 }
 
-// Frontend Todo Item Type (with id)
+// Frontend Todo Item Type
 interface ToDoItem {
   id: string;
   title: string;
   description: string;
   status: string;
   dueDate: string;
-  dueTime: string;  // Separate time field in frontend
+  dueTime: string;
   priority: string;
+  assignee?: {
+    name: string;
+    email: string;
+    userId: string;
+  };
 }
 
 const fetchToDoItems = async (): Promise<ToDoItem[]> => {
@@ -42,8 +52,9 @@ const fetchToDoItems = async (): Promise<ToDoItem[]> => {
     description: item.description,
     status: item.status,
     dueDate: item.dueDate,
-    dueTime: item.dueTime,  // Pass through the time field
+    dueTime: item.dueTime,
     priority: item.priority,
+    assignee: item.assignee,
   }));
 };
 
@@ -51,7 +62,6 @@ export const useFetchToDoItems = () => {
   return useQuery<ToDoItem[], AxiosError>({
     queryKey: ["toDoItems"],
     queryFn: fetchToDoItems,
-    staleTime: 5 * 60 * 1000, 
-
+    staleTime: 5 * 60 * 1000,
   });
 };

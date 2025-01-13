@@ -7,33 +7,46 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from "@tanstack/react-query";
 
+interface UserInfo {
+  userId: string;
+  name: string;
+  email: string;
+}
+
 interface TaskFormData {
   title: string;
   description: string;
-  priority: string;
-  dueDate: string;
-  dueTime: string;  // Separate time field
   status: string;
+  dueDate: string;
+  dueTime: string;
+  priority: string;
+  assignee: UserInfo;
 }
 
 interface UseUpdateTaskFormReturn {
   formData: TaskFormData;
-  errors: Partial<Record<keyof TaskFormData, string>>;
+  errors: Partial<Record<keyof Omit<TaskFormData, 'assignee'> | 'assignee', string>>;
   isLoading: boolean;
   isFormValid: boolean;
-  handleInputChange: (field: keyof TaskFormData, value: string) => void;
+  handleInputChange: (field: keyof Omit<TaskFormData, 'assignee'>, value: string) => void;
+  handleAssigneeChange: (assignee: UserInfo) => void;
   handleSubmit: () => Promise<void>;
   initializeForm: (data: Partial<TaskFormData>) => void;
-  setFormData: (data: TaskFormData) => void;  // Add this method
 }
+
 
 const initialFormData: TaskFormData = {
   title: '',
   description: '',
-  priority: '',
-  dueDate: '',
-  dueTime: '',  // Initialize empty time
   status: '',
+  dueDate: '',
+  dueTime: '',
+  priority: '',
+  assignee: {
+    userId: '',
+    name: '',
+    email: ''
+  }
 };
 
 export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
@@ -41,26 +54,27 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<TaskFormData>(initialFormData);
-  const [errors, setErrors] = useState<Partial<Record<keyof TaskFormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof Omit<TaskFormData, 'assignee'> | 'assignee', string>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
-    const isValid =
-      !!formData.title.trim() &&
-      !!formData.description.trim() &&
-      !!formData.priority &&
-      !!formData.dueDate &&
-      !!formData.dueTime &&  // Validate time field
-      !!formData.priority &&
-      !!formData.status;
-    
+    const isValid = Boolean(
+      formData.title?.trim() &&
+      formData.description?.trim() &&
+      formData.dueDate &&
+      formData.dueTime &&
+      formData.priority?.trim() &&
+      formData.status?.trim() &&
+      formData.assignee.userId &&
+      formData.assignee.name &&
+      formData.assignee.email
+    );
     setIsFormValid(isValid);
   }, [formData]);
 
   const initializeForm = (data: Partial<TaskFormData>) => {
     try {
-      console.log('Initializing form with data:', data);
       let adjustedDueDate = '';
       
       if (data.dueDate) {
@@ -70,10 +84,8 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
         adjustedDueDate = adjustedDate.toISOString();
       }
   
-      // Handle time format during initialization
       let adjustedDueTime = data.dueTime || '';
       if (data.dueTime && !data.dueTime.includes('AM') && !data.dueTime.includes('PM')) {
-        // If time is in 24-hour format, convert it to 12-hour format
         const [hours, minutes] = data.dueTime.split(':');
         const hour = parseInt(hours);
         const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -84,12 +96,13 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
       const formattedData = {
         title: data.title || '',
         description: data.description || '',
-        priority: String(data.priority || ''),
+        status: data.status || '',
+        priority: data.priority || '',
         dueDate: adjustedDueDate,
         dueTime: adjustedDueTime,
-        status: String(data.status || ''),
+        assignee: data.assignee || initialFormData.assignee
       };
-      console.log('Setting formatted data:', formattedData);
+      
       setFormData(formattedData);
     } catch (error) {
       console.error('Error initializing form:', error);
@@ -101,14 +114,18 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
   };
   
   const validateForm = () => {
-    const newErrors: Partial<Record<keyof TaskFormData, string>> = {};
+    const newErrors: Partial<Record<keyof Omit<TaskFormData, 'assignee'> | 'assignee', string>> = {};
     
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.priority) newErrors.priority = 'Priority is required';
-    if (!formData.dueDate) newErrors.dueDate = 'Due date is required';
-    if (!formData.dueTime) newErrors.dueTime = 'Due time is required';  // Validate
-    if (!formData.status) newErrors.status = 'Status is required';
+    if (!formData.title?.trim()) newErrors.title = 'Required Title';
+    if (!formData.description?.trim()) newErrors.description = 'Required Description';
+    if (!formData.dueDate) newErrors.dueDate = 'Required Due Date';
+    if (!formData.dueTime) newErrors.dueTime = 'Required Due Time';
+    if (!formData.priority) newErrors.priority = 'Required Priority';
+    if (!formData.status) newErrors.status = 'Required Status';
+
+    if (!formData.assignee.userId || !formData.assignee.name || !formData.assignee.email) {
+      newErrors.assignee = 'Required Assignee Information';
+    }
 
     if (formData.priority && !['High', 'Medium', 'Low'].includes(formData.priority)) {
       newErrors.priority = 'Invalid priority value';
@@ -122,9 +139,8 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: string) => {
+  const handleInputChange = (field: keyof Omit<TaskFormData, 'assignee'>, value: string) => {
     if (field === 'dueDate' && value) {
-      // Handle date input
       const date = new Date(value);
       const userTimezoneOffset = date.getTimezoneOffset() * 60000;
       const adjustedDate = new Date(date.getTime() - userTimezoneOffset);
@@ -134,7 +150,6 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
         dueDate: adjustedDate.toISOString()
       }));
     } else if (field === 'dueTime' && value) {
-      // Convert 24-hour time to 12-hour format with AM/PM
       const [hours, minutes] = value.split(':');
       const hour = parseInt(hours);
       const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -153,6 +168,13 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
     }
   };
 
+  const handleAssigneeChange = (assignee: UserInfo) => {
+    setFormData(prev => ({
+      ...prev,
+      assignee
+    }));
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -167,6 +189,7 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Authorization token not found');
 
+      // Optimistic update
       queryClient.setQueryData(['toDoItems'], (old: any) => 
         old?.map((task: any) => 
           task.id === taskId ? { ...task, ...formData } : task
@@ -183,12 +206,12 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
       toast({ description: 'Task updated successfully 🎉' });
       router.push('/dashboard');
     } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ["toDoItems"] });
       let errorMessage = 'Failed to update the task 👎';
       if (error instanceof AxiosError && error.response?.data?.error) {
         errorMessage = error.response.data.error;
       }
       toast({ description: errorMessage, variant: 'destructive' });
-      queryClient.invalidateQueries({ queryKey: ["toDoItems"] });
     } finally {
       setIsLoading(false);
     }
@@ -200,8 +223,8 @@ export const useUpdateTaskForm = (): UseUpdateTaskFormReturn => {
     isLoading,
     isFormValid,
     handleInputChange,
+    handleAssigneeChange,
     handleSubmit,
     initializeForm,
-    setFormData,  // Return this method
   };
 };

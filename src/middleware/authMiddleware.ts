@@ -1,34 +1,38 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; 
+interface JwtPayload {
+  userId: string;
+  name: string;
+  email: string;
+}
 
 declare module 'next' {
   interface NextApiRequest {
-    userId?: string;  
-  }}
-
-
-
-const authMiddleware = (req: NextApiRequest, res: NextApiResponse, next: () => void) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
+    userId?: string;
+    userName?: string;
+    userEmail?: string;
   }
+}
 
+const authMiddleware = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+  next: () => Promise<void>
+) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;  
-
-    if (!decoded || !decoded.userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
     }
 
-    req.userId = decoded.userId;  // Safe to access userId now
-    return next();  // Call the next function (createToDo)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    req.userId = decoded.userId;
+    req.userName = decoded.name;
+    req.userEmail = decoded.email;
+    return next();
   } catch {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 

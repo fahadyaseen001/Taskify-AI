@@ -1,18 +1,51 @@
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 
-// Create ToDo item
+interface CreateToDoBody {
+  title: string;
+  description?: string;
+  status: string;
+  dueDate?: string;
+  dueTime?: string;
+  priority: string;
+  assignee: {
+    userId: string;
+    name: string;
+    email: string;
+  };
+  createdBy: {
+    userId: string;
+    name: string;
+    email: string;
+  };
+}
+
 export const createToDo = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const { title, description, dueDate,dueTime, priority , status } = req.body;
-  const userIdString: string | undefined = req.userId; 
+  const { 
+    title, 
+    description, 
+    dueDate, 
+    dueTime, 
+    priority, 
+    status, 
+    assignee,
+    createdBy 
+  } = req.body as CreateToDoBody;
 
-  if (!userIdString) {
-    return res.status(400).json({ message: 'User ID is missing' });
+  // Validate creator information from request body
+  if (!createdBy?.userId || !createdBy?.name || !createdBy?.email) {
+    return res.status(400).json({ message: 'Creator information is missing' });
+  }
+
+  // Validate assignee information
+  if (!assignee?.userId || !assignee?.name || !assignee?.email) {
+    return res.status(400).json({ message: 'Assignee information is required' });
   }
 
   try {
-    const userId: Types.ObjectId = new mongoose.Types.ObjectId(userIdString); 
+    const creatorId = new mongoose.Types.ObjectId(createdBy.userId);
+    const assigneeId = new mongoose.Types.ObjectId(assignee.userId);
 
     const newToDo = new ToDo({
       title,
@@ -21,8 +54,16 @@ export const createToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
       dueTime,
       priority,
       status,
-      userId, 
-    
+      createdBy: {
+        userId: creatorId,
+        name: createdBy.name,
+        email: createdBy.email
+      },
+      assignee: {
+        userId: assigneeId,
+        name: assignee.name,
+        email: assignee.email
+      }
     });
 
     await newToDo.save();
