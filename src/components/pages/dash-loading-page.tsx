@@ -5,7 +5,7 @@ import SkeletonLoader from "@/components/ui/skeleton-loader";
 const LoadingPage: React.FC = () => {
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
-      <UserNav />
+      <UserNav isLoading={false} />
       <div className="flex items-center justify-between space-y-2">
         <div>
           <SkeletonLoader className="h-8 w-1/3" />

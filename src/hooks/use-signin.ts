@@ -1,8 +1,12 @@
+'use client'
+
 import { useToast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";
 import { z } from "zod";
 import { userSchema } from "@/schema/user-schema";
 import AxiosInstance from "@/lib/axios-instance";
+
+
 
 interface ErrorResponse {
   error: string;
@@ -13,6 +17,7 @@ type SignInFormData = Pick<z.infer<typeof userSchema>, 'email' | 'password'>;
 interface SignInResponse {
   token: string;
 }
+
 
 export const useSignIn = () => {
   const { toast } = useToast();
@@ -25,7 +30,10 @@ export const useSignIn = () => {
       });
 
       const token = response.data.token;
+
       localStorage.setItem('token', token);
+
+      
 
       toast({
         title: "Sign In Successful 🎉",

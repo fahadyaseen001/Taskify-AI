@@ -1,4 +1,3 @@
-'use client'
 
 import * as React from "react"
 import {
@@ -8,6 +7,8 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -22,7 +23,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,7 +32,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DataTablePagination } from "@/components/dashboard/dashboard-components/data-table-pagination"
-import { LuSettings2 } from "react-icons/lu" // Import the icon
+import { LuSettings2 } from "react-icons/lu" 
+import { MeMode } from "./dashboard-components/me-mode-filter"
+import { DataTableToolbar } from "./dashboard-components/data-table-toolbar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -55,6 +57,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -65,20 +68,18 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
+    enableFilters: true,
+    manualFiltering: false,
+    
   })
 
   return (
     <div>
       {/* Header Section */}
       <div className="flex items-center py-4 gap-2">
-        <Input
-          placeholder="Filter tasks..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+    <DataTableToolbar table={table} />
+    <div className="flex items-center ml-auto gap-4">
+    <MeMode<TData> table={table} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="default" size="sm" className="ml-auto">
@@ -105,6 +106,7 @@ export function DataTable<TData, TValue>({
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
       {/* Table Section */}
       <div className="rounded-md border">

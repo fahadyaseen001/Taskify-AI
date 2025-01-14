@@ -1,4 +1,3 @@
-'use client'
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -89,6 +88,8 @@ export const columns: ColumnDef<ToDoItem>[] = [
         </div>
       );
     },
+    enableColumnFilter: true,
+
   },
   {
     accessorKey: "dueDate",
@@ -126,6 +127,8 @@ export const columns: ColumnDef<ToDoItem>[] = [
         </div>
       );
     },
+    enableColumnFilter: true,
+
   },
   {
     accessorKey: "assignee",
@@ -140,6 +143,12 @@ export const columns: ColumnDef<ToDoItem>[] = [
             </div>
       );
     },
+    filterFn: (row, id, filterValue) => {
+      if (!filterValue) return true;
+      const assignee = row.getValue(id) as ToDoItem["assignee"];
+      return assignee?.userId === filterValue;
+    },
+    enableColumnFilter: true,
   },
 
   {

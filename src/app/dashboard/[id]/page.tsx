@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import TaskDetailForm from "@/components/forms/task-detail-form";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,6 @@
+'use server'
+
+
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';

@@ -1,3 +1,6 @@
+'use server'
+
+
 import nodemailer from 'nodemailer';
 
 export const sendVerificationEmail = async (email: string, token: string) => {
