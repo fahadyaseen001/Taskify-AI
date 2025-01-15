@@ -59,6 +59,7 @@ export function DataTableToolbar<TData>({
                 column={table.getColumn("assignee")}
                 title="Assignee"
                 options={assigneeOptions}
+                isSingleSelect={true}
               />
             )}
           </>
