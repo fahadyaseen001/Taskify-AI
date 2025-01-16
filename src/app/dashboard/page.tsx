@@ -10,6 +10,7 @@ import { DataTable } from "@/components/dashboard/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from 'next/navigation'; // Import useRouter hook
 import Loader from "@/components/pages/loader";
+import AICommandInput from '@/components/AICommandInput';
 
 export default function TodoPage() {
   const { data: tasks, error, isLoading } = useFetchToDoItems();
@@ -42,6 +43,12 @@ export default function TodoPage() {
     router.push('/task');
   };
 
+  const handleCommandProcessed = (result: any) => {
+    // Handle the result (e.g., refresh todo list, show notification)
+    console.log('Command processed:', result);
+    // You might want to refresh your todo list or show a notification here
+  };
+
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
       <UserNav isLoading={false}/>
@@ -64,6 +71,7 @@ export default function TodoPage() {
         </Button>
       </div>
       <DataTable data={tasks} columns={columns} />
+      <AICommandInput onCommandProcessed={handleCommandProcessed} />
     </div>
   );
 }
