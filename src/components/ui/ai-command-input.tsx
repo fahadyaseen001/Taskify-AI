@@ -9,6 +9,8 @@ import { Input } from './input';
 import { Card, CardHeader, CardContent } from "./card";
 import { RiRobot2Line, RiRobot2Fill } from "react-icons/ri";
 import { useAICommand } from '@/hooks/use-ai-command';
+import { Textarea } from './textarea';
+import Loader from '../pages/loader';
 
 interface AICommandInputProps {
   onCommandProcessed: (result: any) => void;
@@ -60,8 +62,7 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
               <CardContent className="p-4 pt-2">
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-2">
-                    <Input
-                      type="text"
+                    <Textarea
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}
                       placeholder="Message AI Bot"
@@ -83,7 +84,14 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
                     onClick={() => processCommand(textInput)}
                     disabled={isLoading || !textInput}
                   >
-                    {isLoading ? 'Processing...' : 'Process Command'}
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <Loader className="mr-2" />
+                        <span>Processing...</span>
+                      </div>
+                    ) : (
+                      'Process Command'
+                    )}
                   </Button>
                 </div>
               </CardContent>
