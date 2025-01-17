@@ -1,15 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GoHubot, GoX } from "react-icons/go";
+import { GoX } from "react-icons/go";
 import { FaMicrophoneAlt, FaMicrophoneAltSlash } from "react-icons/fa";
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardHeader, CardContent } from "./ui/card";
+import { Button } from './button';
+import { Input } from './input';
+import { Card, CardHeader, CardContent } from "./card";
 import { RiRobot2Line, RiRobot2Fill } from "react-icons/ri";
-
-
+import { useAICommand } from '@/hooks/use-ai-command';
 
 interface AICommandInputProps {
   onCommandProcessed: (result: any) => void;
@@ -19,51 +18,20 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [textInput, setTextInput] = useState('');
-  const [processing, setProcessing] = useState(false);
-
-  // Speech recognition setup
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0])
-            .map(result => result.transcript)
-            .join('');
-          
-          setTextInput(transcript);
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-      }
-    }
-  }, []);
+  const { executeCommand, isLoading } = useAICommand();
 
   const processCommand = async (command: string) => {
-    setProcessing(true);
+    if (!command.trim()) return;
+    
     try {
-      const response = await fetch('/api/ai/process-command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ command })
-      });
-
-      const result = await response.json();
+      const result = await executeCommand(command);
       onCommandProcessed(result);
       setTextInput(''); // Clear input after processing
+      setIsOpen(false); // Close the input after successful processing
     } catch (error) {
-      console.error('Error processing command:', error);
+      // Error handling is managed by the hook via toast notifications
+      console.error('Error in component:', error);
     }
-    setProcessing(false);
   };
 
   return (
@@ -79,7 +47,7 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
             <Card>
               <CardHeader className="p-4 pb-0">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">TaskUP AI Assistant </h3>
+                  <h3 className="text-lg font-semibold">TaskUP AI Assistant</h3>
                   <Button 
                     variant="ghost" 
                     size="icon"
@@ -113,9 +81,9 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
                   <Button
                     variant="default"
                     onClick={() => processCommand(textInput)}
-                    disabled={processing || !textInput}
+                    disabled={isLoading || !textInput}
                   >
-                    {processing ? 'Processing...' : 'Process Command'}
+                    {isLoading ? 'Processing...' : 'Process Command'}
                   </Button>
                 </div>
               </CardContent>
@@ -140,7 +108,7 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
               <RiRobot2Fill className="h-6 w-6" />
             </div>
           ) : (
-            <RiRobot2Line  className="h-6 w-6" />
+            <RiRobot2Line className="h-6 w-6" />
           )}
         </motion.div>
       </Button>
@@ -148,4 +116,4 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
   );
 };
 
-export default AICommandInput; 
+export default AICommandInput;

@@ -10,7 +10,7 @@ import { DataTable } from "@/components/dashboard/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from 'next/navigation'; // Import useRouter hook
 import Loader from "@/components/pages/loader";
-import AICommandInput from '@/components/AICommandInput';
+import AICommandInput from '@/components/ui/ai-command-input';
 
 export default function TodoPage() {
   const { data: tasks, error, isLoading } = useFetchToDoItems();
