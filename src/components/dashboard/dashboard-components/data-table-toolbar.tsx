@@ -9,7 +9,6 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { priorities, statuses, usePrepareAssigneeOptions } from "../dashboard-utils/options-data"
-import Loader from "@/components/pages/loader"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -48,21 +47,14 @@ export function DataTableToolbar<TData>({
             options={priorities}
           />
         )}
-         {table.getColumn("assignee") && (
-          <>
-            {isLoading ? (
-              <Loader />
-            ) : isError ? (
-              <span className="text-red-500 text-sm">Failed to load users</span>
-            ) : (
+         {table.getColumn("assignee") && (           
               <DataTableFacetedFilter
                 column={table.getColumn("assignee")}
                 title="Assignee"
                 options={assigneeOptions}
                 isSingleSelect={true}
+                isLoading={isLoading}
               />
-            )}
-          </>
         )}
         {isFiltered && (
           <Button

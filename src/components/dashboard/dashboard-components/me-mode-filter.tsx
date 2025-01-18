@@ -34,11 +34,11 @@ export function MeMode<TData>({ table }: MeModeProps<TData>) {
           <Button
             variant={meMode ? "default" : "outline"}
             size="icon"
-            className="flex items-center space-x-2 h-9 w-auto px-4 rounded-full"
+            className="flex items-center space-x-2 h-9 w-auto px-4 rounded-full border-dashed"
             onClick={toggleMeMode}
           >
             <UserIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">
+            <span className="text-xs font-medium">
               {meMode ? "Me Mode On" : "Me Mode Off"}
             </span>
           </Button>
