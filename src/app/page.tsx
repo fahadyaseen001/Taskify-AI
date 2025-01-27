@@ -8,11 +8,12 @@ import { UserProvider } from '@/components/providers/user-provider';
 // Dynamically import Lottie with SSR disabled
 const Lottie = dynamic(() => import('lottie-react'), {
   ssr: false,
-  loading: () => <div>Loading...</div>
+  loading: () => <div></div>
 });
 
 // Import animation data
 import Todo from "./Todo.json";
+import Loader from '@/components/pages/loader';
 
 export default function Home() {
   const router = useRouter();
