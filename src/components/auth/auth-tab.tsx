@@ -47,7 +47,7 @@ export default function AuthTabs() {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <div className="flex items-center gap-4 mb-10">
-        <h1 className="text-4xl font-bold">UpTask</h1>
+        <h1 className="text-4xl font-bold">Taskify AI</h1>
         <SiTask className="text-4xl" />
       </div>
       <Tabs defaultValue="signin" className="w-full max-w-[400px]">
