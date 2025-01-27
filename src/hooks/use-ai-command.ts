@@ -1,22 +1,20 @@
+// use-ai-command.ts
 'use client'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import AxiosInstance from "@/lib/axios-instance";
 import { useToast } from "@/hooks/use-toast";
+import { ToDoType } from "@/models/todoList";
 
-// API Response Type
+// Updated response types to match AIAgent service
 interface AICommandResponse {
   success: boolean;
-  message: string;
-  result: {
-    action: string;
-    data: any;
-    status: string;
-  };
+  task?: ToDoType;
+  tasks?: ToDoType[];
+  message?: string;
 }
 
-// Command Request Type
 interface AICommandRequest {
   command: string;
 }
@@ -48,8 +46,18 @@ export const useAICommand = () => {
       // Invalidate and refetch tasks after successful command execution
       queryClient.invalidateQueries({ queryKey: ["toDoItems"] });
       
+      // Customize success message based on the response
+      let successMessage = "Command executed successfully 🎉";
+      if (data.task) {
+        successMessage = "Task updated successfully 🎉";
+      } else if (data.tasks) {
+        successMessage = `Found ${data.tasks.length} tasks 🎉`;
+      } else if (data.message) {
+        successMessage = data.message;
+      }
+      
       toast({
-        description: data.message || "Command executed successfully 🎉",
+        description: successMessage,
       });
     },
     onError: (error) => {

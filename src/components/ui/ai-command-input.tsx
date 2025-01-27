@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GoX } from "react-icons/go";
 import { FaMicrophoneAlt, FaMicrophoneAltSlash } from "react-icons/fa";
 import { Button } from './button';
-import { Input } from './input';
 import { Card, CardHeader, CardContent } from "./card";
 import { RiRobot2Line, RiRobot2Fill } from "react-icons/ri";
 import { useAICommand } from '@/hooks/use-ai-command';

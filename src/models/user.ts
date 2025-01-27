@@ -7,6 +7,13 @@ export interface UserType {
     password: string;
   }
 
+// UserInfo Type
+export interface UserInfo {
+    userId: mongoose.Types.ObjectId; // Ensure this is consistent
+    name: string;
+    email: string;
+}
+
 const UserSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -15,7 +22,6 @@ const UserSchema = new Schema(
   },
   { timestamps: true } // Automatically manages createdAt and updatedAt
 );
-
 
 const User = models.User || model('User', UserSchema);
 
