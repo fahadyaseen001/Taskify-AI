@@ -1,0 +1,68 @@
+name: Cleanup Deployments
+
+on:
+  # Run manually from the Actions tab
+  workflow_dispatch:
+    
+  # Run after each deployment
+  deployment_status:
+    types: [success]
+
+jobs:
+  cleanup:
+    name: Cleanup Old Deployments
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Delete Old Deployments
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            // Keep only the most recent deployment
+            const deploymentsToDelete = deployments.data.slice(1);
+            
+            for (const deployment of deploymentsToDelete) {
+              try {
+                // First, deactivate the deployment
+                await github.rest.repos.createDeploymentStatus({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id,
+                  state: 'inactive'
+                });
+                
+                // Then delete it
+                await github.rest.repos.deleteDeployment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id
+                });
+                
+                console.log(`Successfully deleted deployment ${deployment.id}`);
+              } catch (error) {
+                console.error(`Error deleting deployment ${deployment.id}:`, error);
+              }
+            }
+            
+            console.log('Deployment cleanup completed');
+
+      - name: Notify on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Deployment Cleanup Failed',
+              body: 'The deployment cleanup workflow has failed. Please check the workflow logs for more details.'
+            });
+            console.log('Created issue #' + issue.data.number); 
