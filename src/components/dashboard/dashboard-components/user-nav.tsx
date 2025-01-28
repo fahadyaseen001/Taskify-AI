@@ -1,4 +1,3 @@
-
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ interface UserNavProps {
 
 export function UserNav({ isLoading }: UserNavProps) {
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user, setUser, updateUserFromToken } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
