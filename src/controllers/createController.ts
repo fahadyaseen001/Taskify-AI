@@ -4,6 +4,7 @@
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
+import { NotificationService } from '@/services/notificationService';
 
 interface CreateToDoBody {
   title: string;
@@ -70,6 +71,15 @@ export const createToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
     });
 
     await newToDo.save();
+
+    // Send notification to assignee
+    await NotificationService.notifyTaskAssignment(
+      assignee.email,
+      assignee.name,
+      createdBy.name,
+      newToDo._id.toString()
+    );
+
     return res.status(201).json({ message: 'To-Do created successfully', toDo: newToDo });
   } catch (error) {
     const errorMessage = (error as Error).message;

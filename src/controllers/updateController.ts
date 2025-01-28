@@ -4,6 +4,7 @@
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
+import { NotificationService } from '@/services/notificationService';
 
 interface UpdateToDoBody {
   title?: string;
@@ -67,6 +68,15 @@ export const updateToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
 
     // Save the updated To-Do item
     await todoToUpdate.save();
+
+    // Send notification if there are significant changes
+    await NotificationService.notifyTaskUpdate(
+      todoToUpdate.assignee.email,
+      todoToUpdate.assignee.name,
+      req.userName || 'A user',
+      todoToUpdate._id.toString()
+    );
+
     return res.status(200).json({ message: 'To-Do updated successfully', toDo: todoToUpdate });
   } catch (error) {
     const errorMessage = (error as Error).message;

@@ -4,6 +4,7 @@
 import ToDo from '@/models/todoList';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
+import { NotificationService } from '@/services/notificationService';
 
 // Delete ToDo item
 export const deleteToDo = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
@@ -28,8 +29,22 @@ export const deleteToDo = async (req: NextApiRequest, res: NextApiResponse): Pro
       return res.status(404).json({ message: 'To-Do not found' });
     }
 
+    // Store assignee info before deletion
+    const assigneeEmail = toDo.assignee.email;
+    const assigneeName = toDo.assignee.name;
+    const taskTitle = toDo.title;
+
     // Delete the ToDo item
     await ToDo.deleteOne({ _id: id });
+
+    // Send notification to assignee
+    await NotificationService.notifyTaskDeletion(
+      assigneeEmail,
+      assigneeName,
+      req.userName || 'A user',
+      toDo._id.toString()
+    );
+
     return res.status(200).json({ message: 'To-Do deleted successfully' });
   } catch (error) {
     const errorMessage = (error as Error).message;
