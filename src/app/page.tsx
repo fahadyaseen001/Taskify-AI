@@ -13,7 +13,6 @@ const Lottie = dynamic(() => import('lottie-react'), {
 
 // Import animation data
 import Todo from "./Todo.json";
-import Loader from '@/components/pages/loader';
 
 export default function Home() {
   const router = useRouter();
@@ -21,7 +20,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push('/auth');
-    }, 4700);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [router]);

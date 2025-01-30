@@ -36,6 +36,16 @@ interface ParsedCommand {
   taskCount?: number;
 }
 
+interface RequiredTaskFields {
+  title: boolean;
+  description: boolean;
+  priority: boolean;
+  status: boolean;
+  dueDate: boolean;
+  dueTime: boolean;
+  assignee: boolean;
+}
+
 export class AIAgentService {
   private static readonly ACTION_KEYWORDS = {
     read: ['show', 'give', 'tell', 'display', 'list', 'find', 'search', 'get'],
@@ -44,21 +54,6 @@ export class AIAgentService {
     delete: ['delete', 'remove']
   };
 
-  private static async fetchUsers(): Promise<User[]> {
-    try {
-      // Using Mongoose to fetch users from the User collection
-      const User = mongoose.model('User');
-      const users = await User.find({}, 'name email');
-      return users.map(user => ({
-        _id: user._id.toString(),
-        name: user.name,
-        email: user.email
-      }));
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      throw new Error('Failed to fetch users from database');
-    }
-  }
 
   private static async findUserByName(name: string): Promise<User | undefined> {
     try {
@@ -231,12 +226,42 @@ export class AIAgentService {
     }
   }
 
+  private static validateTaskFields(data: Partial<ToDoType>): { isValid: boolean; missingFields: string[] } {
+    const requiredFields: RequiredTaskFields = {
+      title: true,
+      description: true,
+      priority: true,
+      status: true,
+      dueDate: true,
+      dueTime: true,
+      assignee: true
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([field, required]) => required && !data[field as keyof ToDoType])
+      .map(([field]) => field);
+
+    return {
+      isValid: missingFields.length === 0,
+      missingFields
+    };
+  }
+
   private static async createTask(data: Partial<ToDoType>, userInfo: UserInfo) {
     try {
+      // Validate required fields
+      const validation = this.validateTaskFields(data);
+      if (!validation.isValid) {
+        throw new Error(
+          `Cannot create task. Missing required fields: ${validation.missingFields.join(', ')}. ` +
+          'Please provide all required fields to create a task.'
+        );
+      }
+
       const taskData = {
         ...data,
         createdBy: userInfo,
-        assignee: data.assignee || userInfo // Default assignee to creator if not specified
+        assignee: data.assignee || userInfo
       };
 
       const newTask = new ToDo(taskData);
@@ -244,7 +269,7 @@ export class AIAgentService {
       return { success: true, task: newTask };
     } catch (error) {
       console.error('Error creating task:', error);
-      throw new Error('Failed to create task');
+      throw error; // Throw the original error to preserve the missing fields message
     }
   }
 

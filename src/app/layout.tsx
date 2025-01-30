@@ -6,7 +6,7 @@ import { ThemeToggleButton } from "@/components/theme/theme-toggle-button";
 import { Toaster } from "@/components/ui/toaster";
 import ReactQueryProvider from "@/components/providers/query-provider";
 import { UserProvider } from "@/components/providers/user-provider";
-import ErrorBoundary from '@/components/error-boundary';
+import ErrorBoundary from '@/components/ui/error-boundary';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Todo App",
-  description: "A simple todo app",};
+  title: "Taskify AI",
+  description: "A modern, AI-powered task management platform built with Next.js and TypeScript that transforms the way teams organize and manage their work.",};
 
 export default function RootLayout({
   children,
