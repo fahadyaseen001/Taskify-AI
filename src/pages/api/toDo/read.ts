@@ -3,8 +3,11 @@ import { getAllToDos } from '@/controllers/readController';  // Import the read 
 import authMiddleware from '@/middleware/authMiddleware';  // Authentication middleware to validate token
 import dbConnect from '@/utils/dbConnect';  // Database connection utility
 import type { NextApiRequest, NextApiResponse } from 'next';  // Next.js types for request and response
+import { configureCors } from '@/config/cors'; // Import CORS configuration
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  await configureCors(req, res); // Apply CORS configuration
+
   await dbConnect();  // Connect to the database
 
   if (req.method === 'GET') {

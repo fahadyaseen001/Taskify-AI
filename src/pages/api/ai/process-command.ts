@@ -3,8 +3,11 @@ import authMiddleware from '@/middleware/authMiddleware';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/utils/dbConnect';
 import { ObjectId } from 'mongodb';
+import { configureCors } from '@/config/cors';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  await configureCors(req, res);
+
   await dbConnect();
 
   if (req.method === 'POST') {

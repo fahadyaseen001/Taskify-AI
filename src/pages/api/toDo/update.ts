@@ -3,8 +3,11 @@ import { updateToDo } from '@/controllers/updateController';
 import authMiddleware from '@/middleware/authMiddleware';
 import dbConnect from '@/utils/dbConnect';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { configureCors } from '@/config/cors'; // Import CORS configuration
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  await configureCors(req, res); // Apply CORS configuration
+
   await dbConnect();  // Connect to DB
 
   if (req.method === 'PUT') {

@@ -3,8 +3,11 @@ import dbConnect from '@/utils/dbConnect';
 import PendingUser from '@/models/pendingUser';
 import User from '@/models/user';
 import mongoose from 'mongoose';
+import { configureCors } from '@/config/cors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await configureCors(req, res);
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }

@@ -6,10 +6,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import allowedEmailDomains from '@/utils/mail/allowedEmailDomains.json';
+import { configureCors } from '@/config/cors';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'default_secret_key';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Apply CORS configuration
+  await configureCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
