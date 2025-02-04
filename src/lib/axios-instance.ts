@@ -3,7 +3,9 @@
 import axios from 'axios';
 
 const AxiosInstance = axios.create({
-  baseURL: '/api', 
+   baseURL : process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },
