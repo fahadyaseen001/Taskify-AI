@@ -1,4 +1,3 @@
-'use server'
 
 
 import ToDo from '@/models/todoList';

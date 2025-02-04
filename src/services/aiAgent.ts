@@ -219,8 +219,7 @@ export class AIAgentService {
         if (!command.todoIds?.length) throw new Error('Task ID is required for deletion');
         return await this.deleteTask(command.todoIds[0]);
       case 'read':
-        if (!command.todoIds || command.todoIds.length === 0) throw new Error('Task ID is required for reading tasks');
-        return await this.readTasks(command.filters, command.todoIds);
+        return await this.readTasks(command.filters, command.todoIds || []);
       default:
         throw new Error('Invalid command action');
     }
@@ -317,15 +316,13 @@ export class AIAgentService {
 
   private static async readTasks(filters: Record<string, any> = {}, todoIds: string[] = []) {
     try {
-      // Ensure user can only access tasks they're involved with
-      const userFilter = {
-        $or: [
-          { 'createdBy.userId': { $in: todoIds } },
-          { 'assignee.userId': { $in: todoIds } }
-        ]
-      };
+      let query = { ...filters };
+      
+      // If specific task IDs are provided, add them to the query
+      if (todoIds.length > 0) {
+        query._id = { $in: todoIds };
+      }
 
-      const query = { ...filters, ...userFilter };
       const tasks = await ToDo.find(query);
       return { success: true, tasks };
     } catch (error) {
