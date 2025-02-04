@@ -2,10 +2,13 @@
 
 import axios from 'axios';
 
+// For Vercel, use the full deployment URL, otherwise use the local development URL
+const baseURL = process.env.NEXT_PUBLIC_VERCEL_URL 
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 const AxiosInstance = axios.create({
-   baseURL : process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
