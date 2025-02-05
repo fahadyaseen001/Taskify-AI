@@ -8,7 +8,7 @@ const baseURL = process.env.NEXT_PUBLIC_VERCEL_URL
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 const AxiosInstance = axios.create({
-  baseURL:'https://taskify-6rkg57ufh-shrekpepsis-projects.vercel.app',
+  baseURL:'https://taskify-ai-jet.vercel.app',
   headers: {
     'Content-Type': 'application/json',
   },
