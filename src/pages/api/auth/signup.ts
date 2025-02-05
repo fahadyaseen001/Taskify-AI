@@ -9,11 +9,8 @@ import { z } from 'zod';
 import mongoose from 'mongoose';
 import allowedEmailDomains from '@/utils/mail/allowedEmailDomains.json';
 import { sendVerificationEmail } from '@/utils/mail/verificationEmail';
-import { configureCors } from '@/config/cors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Apply CORS configuration
-  await configureCors(req, res);
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });

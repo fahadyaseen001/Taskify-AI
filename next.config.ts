@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 
-/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
