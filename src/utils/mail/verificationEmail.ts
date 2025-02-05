@@ -2,9 +2,23 @@ import nodemailer from 'nodemailer';
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   // Use the request host or fallback to environment variable
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const getBaseURL = () => {
+    // Check for production deployment
+    if (process.env.NODE_ENV === 'production') {
+      // Prioritize custom production URL
+      return `https://${process.env.NEXT_PUBLIC_PRODUCTION_URL}` 
+        || `https://${process.env.VERCEL_URL}`
+        || process.env.NEXT_PUBLIC_APP_URL ;
+    }
+  
+    // For preview or development environments
+    return process.env.NEXT_PUBLIC_APP_URL 
+      || `https://${process.env.VERCEL_URL}`
+      || 'http://localhost:3000';
+  };
+  
+  // Generate the base URL
+  const baseUrl = getBaseURL();
   
   const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${token}`;
   
