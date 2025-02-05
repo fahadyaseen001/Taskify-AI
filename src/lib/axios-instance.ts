@@ -3,17 +3,16 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
-  // Option 1: Use a custom environment variable for production
   if (process.env.NEXT_PUBLIC_PRODUCTION_URL) {
-    return `https://${process.env.NEXT_PUBLIC_PRODUCTION_URL}`;
+    return process.env.NEXT_PUBLIC_PRODUCTION_URL;
   }
   
-  // Option 2: Check if we're in production and use the production URL
+  // Check if we're in production and use the production URL
   if (process.env.NODE_ENV === 'production') {
     return 'https://taskify-ai-jet.vercel.app';
   }
   
-  // Option 3: Use VERCEL_URL for preview deployments
+  //  Use VERCEL_URL for preview deployments
   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
   }

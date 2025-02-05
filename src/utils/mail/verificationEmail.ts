@@ -6,7 +6,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     // Check for production deployment
     if (process.env.NODE_ENV === 'production') {
       // Prioritize custom production URL
-      return `https://${process.env.NEXT_PUBLIC_PRODUCTION_URL}` 
+      return process.env.NEXT_PUBLIC_PRODUCTION_URL 
         || `https://${process.env.VERCEL_URL}`
         || process.env.NEXT_PUBLIC_APP_URL ;
     }
