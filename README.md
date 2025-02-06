@@ -26,7 +26,7 @@ Taskify AI combines intelligent task management with a sleek, intuitive interfac
 - **Authentication**: JWT with secure token management
 - **Database**: MongoDB with Mongoose
 - **Animation**: Framer Motion, Lottie
-- **AI Integration**: Advanced natural language processing
+- **AI Integration**: Advanced natural language processing using OpenAI's GPT-4 for intelligent task management and user assistance.
 
 ### Security & Performance 🛡️
 
