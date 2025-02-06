@@ -8,7 +8,7 @@ Taskify AI combines intelligent task management with a sleek, intuitive interfac
 
 ### Key Features 🚀
 
-- **AI-Powered Task Management**: Natural language processing for task creation and management
+- **AI-Powered Task Management**: Open AI GPT-4 for task creation and management & NLP
 - **Smart Task Organization**: Intelligent categorization and priority management
 - **Real-Time Collaboration**: Seamless team collaboration with live updates
 - **Responsive Design**: Beautiful, responsive UI that works across all devices
@@ -26,7 +26,7 @@ Taskify AI combines intelligent task management with a sleek, intuitive interfac
 - **Authentication**: JWT with secure token management
 - **Database**: MongoDB with Mongoose
 - **Animation**: Framer Motion, Lottie
-- **AI Integration**: Advanced natural language processing using OpenAI's GPT-4 for intelligent task management and user assistance.
+- **AI Integration**: Natural language processing using OpenAI's GPT-4 for intelligent task management and user assistance.
 
 ### Security & Performance 🛡️
 
@@ -41,8 +41,8 @@ To get started with Taskify AI, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/todo-fullstack-app.git
-   cd todo-fullstack-app
+   git clone https://github.com/yourusername/Taskify-AI
+   cd Taskify-AI
    ```
 
 2. **Install Dependencies**:
