@@ -113,7 +113,7 @@ const TaskDetailForm = () => {
           </div>
 
           {/* Title and Priority Row */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="title" className="text-sm font-medium">
                 Title
@@ -155,7 +155,7 @@ const TaskDetailForm = () => {
           </div>
 
           {/* Description and Due Date Row */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="col-span-2 space-y-2">
               <Label htmlFor="description" className="text-sm font-medium">
                 Description
@@ -212,7 +212,7 @@ const TaskDetailForm = () => {
           </div>
 
           {/* Time, Status, and Assignee Row */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="dueTime" className="text-sm font-medium">
                 Due Time

@@ -79,7 +79,7 @@ export default function SignUpForm() {
           <FormInput
             id="name"
             label="Name"
-            type=" text"
+            type="text"
             placeholder="Enter your name"
             register={register("name")}
             error={errors.name}

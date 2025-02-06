@@ -45,7 +45,7 @@ export default function AuthTabs() {
   }, [queryVerified, toast])
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-300 p-4 md:p-8">
       <div className="flex items-center gap-4 mb-10">
         <h1 className="text-4xl font-bold">Taskify AI</h1>
         <SiTask className="text-4xl" />
