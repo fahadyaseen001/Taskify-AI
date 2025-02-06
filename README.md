@@ -1,6 +1,6 @@
 # Taskify AI 🤖✨
 
-A modern, AI-powered task management platform built with Next.js and TypeScript that transforms the way teams organize and manage their work.
+A modern, Open AI-powered task management platform built with Next.js and TypeScript that transforms the way teams organize and manage their work.
 
 ## Overview
 
