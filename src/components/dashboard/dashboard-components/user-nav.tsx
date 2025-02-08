@@ -11,7 +11,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import AvatarSkeleton from "@/components/ui/avatar-skeleton";
 import { useUser } from "@/components/providers/user-provider";
 
 interface UserNavProps {
@@ -28,13 +27,6 @@ export function UserNav({ isLoading }: UserNavProps) {
     router.push("/auth");
   };
 
-  if (isLoading) {
-    return (
-      <div className="h-8 w-8 rounded-full">
-        <AvatarSkeleton />
-      </div>
-    );
-  }
 
   const displayName = user?.name || "Guest";
   const displayEmail = user?.email || "guest@example.com";

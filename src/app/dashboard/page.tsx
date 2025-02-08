@@ -7,31 +7,26 @@ import { Button } from "@/components/ui/button";
 import { useFetchToDoItems } from "@/hooks/use-read-task";
 import { UserNav } from "@/components/dashboard/dashboard-components/user-nav";
 import { DataTable } from "@/components/dashboard/data-table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from 'next/navigation';
 import Loader from "@/components/pages/loader";
 import AICommandInput from '@/components/ui/ai-command-input';
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-utils/loading-skeletons/dashboard-skeleton";
 
 export default function TodoPage() {
-  const { data: tasks, error, isLoading } = useFetchToDoItems();
+  const { data: tasks, error, isLoading, isFetching  } = useFetchToDoItems();
   const router = useRouter();
   const [isNavigating, setIsNavigating] = React.useState(false);
+  const [cachedTaskCount, setCachedTaskCount] = React.useState(0);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">
-        <UserNav isLoading={true} />
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <Skeleton className="h-4 w-full md:w-1/2 mt-2" />
-            <Skeleton className="h-4 w-2/3 md:w-1/3 mt-2" />
-          </div>
-          <Skeleton className="h-8 w-full md:w-32" />
-        </div>
-        <Skeleton className="h-10 w-full mt-4" />
-        <Skeleton className="h-10 w-full mt-4" />
-      </div>
-    );
+  // Show skeleton during initial load OR background refetch
+  React.useEffect(() => {
+    if (tasks) {
+      setCachedTaskCount(tasks.length); // Update count on successful fetch
+    }
+  }, [tasks]);
+
+  if (isLoading || isFetching) {
+    return <DashboardSkeleton taskCount={cachedTaskCount || 3} />;
   }
 
   if (error) {

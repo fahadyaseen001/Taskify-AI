@@ -133,7 +133,7 @@ const TaskForm = () => {
                 <Input
                   type="time"
                   id="dueTime"
-                  value={formData.dueTime || ''}
+                  value={formData.dueTime ? convertTo24Hour(formData.dueTime) : ''}
                   onChange={(e) => handleInputChange('dueTime', e.target.value)}
                   className="w-full"
                   disabled={isLoading}

@@ -22,7 +22,7 @@ const getBaseURL = () => {
 };
 
 const AxiosInstance = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },
