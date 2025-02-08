@@ -43,7 +43,7 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="mb-4 w-[350px]"
+            className="mb-4 w-[90vw] md:w-[350px]"
           >
             <Card>
               <CardHeader className="p-4 pb-0">
@@ -82,9 +82,10 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
                     variant="default"
                     onClick={() => processCommand(textInput)}
                     disabled={isLoading || !textInput}
+                    className="w-full"
                   >
                     {isLoading ? (
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-center">
                         <Loader className="mr-2" />
                         <span>Processing...</span>
                       </div>
@@ -111,9 +112,7 @@ const AICommandInput: React.FC<AICommandInputProps> = ({ onCommandProcessed }) =
           whileTap={{ scale: 0.95 }}
         >
           {isOpen ? (
-            <div className="flex items-center gap-1">
-              <RiRobot2Fill className="h-6 w-6" />
-            </div>
+            <RiRobot2Fill className="h-6 w-6" />
           ) : (
             <RiRobot2Line className="h-6 w-6" />
           )}
