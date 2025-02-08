@@ -83,34 +83,36 @@ const TaskDetailForm = () => {
   };
 
   if (!initialDataLoaded) {
-    return <div className="w-full max-w-4xl mx-auto p-6">Loading...</div>;
+    return <div className="w-full max-w-4xl mx-auto p-4">Loading...</div>;
+
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent>
-        <form onSubmit={onSubmit} className="p-6 space-y-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="text-2xl font-bold">Task Details</div>
-            <Button
-              type="button"
-              variant={isEditMode ? "destructive" : "default"}
-              onClick={() => setIsEditMode(!isEditMode)}
-              className="w-24"
-            >
-              {isEditMode ? (
-                <>
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Edit2 className="mr-2 h-4 w-4" />
-                  Edit
-                </>
-              )}
-            </Button>
-          </div>
+    <div className="min-h-screen w-full p-2 sm:p-4 md:p-8">
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardContent>
+          <form onSubmit={onSubmit} className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-6">
+              <div className="text-xl sm:text-2xl font-bold">Task Details</div>
+              <Button
+                type="button"
+                variant={isEditMode ? "destructive" : "default"}
+                onClick={() => setIsEditMode(!isEditMode)}
+                className="w-full sm:w-24"
+              >
+                {isEditMode ? (
+                  <>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    Edit
+                  </>
+                )}
+              </Button>
+            </div>
 
           {/* Title and Priority Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -268,27 +270,28 @@ const TaskDetailForm = () => {
 
           {/* Save Button */}
           {isEditMode && (
-            <div className="flex justify-end pt-6">
-              <Button
-                type="submit"
-                variant="default"
-                className="w-40"
-                disabled={!isFormValid || isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader />
-                    <span className="ml-2">Updating...</span>
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </div>
-          )}
-        </form>
-      </CardContent>
-    </Card>
+              <div className="flex justify-end pt-4 md:pt-6">
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full sm:w-40"
+                  disabled={!isFormValid || isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader />
+                      <span className="ml-2">Updating...</span>
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </div>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
