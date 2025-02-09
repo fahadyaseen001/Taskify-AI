@@ -3,20 +3,16 @@ import { TableSkeleton } from "./table-skeleton";
 import { DataTableToolbarSkeleton } from "./data-table-toolbar-skeleton";
 import { DataTablePaginationSkeleton } from "./data-table-pagination-skeleton";
 import { UserNavSkeleton } from "./user-nav-skeleton";
-import { MeModeSkeleton } from "./me-mode-skeleton";
-import { ViewSkeleton } from "./view-dropdown";
+import { AICommandInputSkeleton } from "./ai-command-input-skeleton";
 
 interface DashboardSkeletonProps {
   taskCount?: number;
 }
 
-export function DashboardSkeleton({ taskCount = 1 }: DashboardSkeletonProps) {
+export function DashboardSkeleton({ taskCount = 0 }: DashboardSkeletonProps) {
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">
-      {/* User Nav Skeleton - Now positioned on the left */}
-      <div className="flex items-start">
         <UserNavSkeleton />
-      </div>
 
       {/* Header Section Skeleton */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -36,6 +32,9 @@ export function DashboardSkeleton({ taskCount = 1 }: DashboardSkeletonProps) {
         <TableSkeleton rowCount={taskCount} />
         <DataTablePaginationSkeleton />
       </div>
+
+      {/* AI Command Input Skeleton */}
+      <AICommandInputSkeleton />
     </div>
   );
 }

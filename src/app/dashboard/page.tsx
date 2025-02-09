@@ -18,20 +18,18 @@ export default function TodoPage() {
   const [isNavigating, setIsNavigating] = React.useState(false);
   const [cachedTaskCount, setCachedTaskCount] = React.useState(0);
 
-  // Show skeleton during initial load OR background refetch
-  React.useEffect(() => {
-    if (tasks) {
-      setCachedTaskCount(tasks.length); // Update count on successful fetch
+    // Show skeleton during initial load OR background refetch
+    React.useEffect(() => {
+        if (tasks) {
+            setCachedTaskCount(tasks.length); 
+        }
+    }, [tasks]);
+
+    let skeletonTaskCount = cachedTaskCount || 0; 
+
+    if (isLoading || isFetching) {
+        return <DashboardSkeleton taskCount={skeletonTaskCount} />; 
     }
-  }, [tasks]);
-
-  if (isLoading || isFetching) {
-    return <DashboardSkeleton taskCount={cachedTaskCount || 3} />;
-  }
-
-  if (error) {
-    return <div className="text-center py-4 text-red-600">{error.message}</div>;
-  }
 
   const handleNavigation = () => {
     setIsNavigating(true);

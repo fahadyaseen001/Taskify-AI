@@ -15,8 +15,10 @@ export function DataTableToolbarSkeleton() {
             <Skeleton className="h-8 w-24" /> {/* Priority Filter */}
             <Skeleton className="h-8 w-24" /> {/* Assignee Filter */}
           </div>
-          <div className="flex items-center gap-2 ml-auto">
-            <MeModeSkeleton />
+          <div className="flex items-center justify-between w-full md:w-auto md:ml-auto gap-2">
+            <div className="flex-1 md:flex-none">
+              <MeModeSkeleton />
+            </div>
             <ViewSkeleton />
           </div>
         </div>

@@ -21,7 +21,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Taskify AI",
-  description: "A modern, AI-powered task management platform built with Next.js and TypeScript that transforms the way teams organize and manage their work.",};
+  description: "A modern, AI-powered task management platform built with Next.js and TypeScript that transforms the way teams organize and manage their work.",
+};
 
 export default function RootLayout({
   children,
