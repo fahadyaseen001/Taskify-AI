@@ -370,11 +370,9 @@ export class AIAgentService {
         query._id = { $in: todoIds };
       }
   
-      console.log('Query:', query); // Debug log
 
       const tasks = await ToDo.find(query).lean();
       
-      console.log('Found tasks:', tasks.length); // Debug log
       
       return {
         success: true,

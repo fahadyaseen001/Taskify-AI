@@ -44,7 +44,6 @@ export default function TodoPage() {
     const handleAICommandProcessed = (result: AICommandResponse) => {
       if (result?.success && result?.tasks) {
         setAICommandResult(result);
-        console.log('AI command processed:', result);
       }
     };
   

@@ -187,7 +187,6 @@ export const useTodoForm = (): UseTodoFormReturn => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 
-        console.log("Task created:", response.data);
 
         // Update queryClient based on the response
         queryClient.invalidateQueries({ queryKey: ["toDoItems"] });
