@@ -11,11 +11,13 @@ import { formatDate } from "../dashboard-utils/date-format";
 
 export interface ToDoItem {
   id: string;
+  _id?: string; // Add support for MongoDB _id
   title: string;
   description: string;
   status: "Todo" | "Completed" | "Cancelled" | "In Progress" | "BackLog";
   dueDate: string;
   priority: "High" | "Medium" | "Low";
+  dueTime: string;
   assignee?: {
     name: string;
     email: string;
@@ -23,8 +25,16 @@ export interface ToDoItem {
   };
 }
 
-const formatTaskId = (id: string) => {
-  return `TASK-${id.slice(-4)}`;
+const formatTaskId = (id: string | undefined) => {
+  if (!id) return 'TASK-XXXX';
+  
+  // Handle MongoDB _id format (which is typically longer)
+  if (id.length > 4) {
+    return `TASK-${id.slice(-4)}`;
+  }
+  
+  // Handle case where id is already in short format
+  return `TASK-${id.padStart(4, '0')}`;
 };
 
 export const columns: ColumnDef<ToDoItem>[] = [
@@ -53,7 +63,7 @@ export const columns: ColumnDef<ToDoItem>[] = [
       <DataTableColumnHeader column={column} title="Task ID" />
     ),
     cell: ({ row }) => {
-      const id = row.getValue("id") as string;
+      const id = (row.getValue("id") as string) || (row.original._id as string);
       return <span className="font-medium">{formatTaskId(id)}</span>;
     },
     

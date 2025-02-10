@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react";
-import { columns } from "@/components/dashboard/dashboard-components/columns";
+import { columns, ToDoItem } from "@/components/dashboard/dashboard-components/columns";
 import { MdAddCircleOutline } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { useFetchToDoItems } from "@/hooks/use-read-task";
@@ -11,12 +11,22 @@ import { useRouter } from 'next/navigation';
 import Loader from "@/components/pages/loader";
 import AICommandInput from '@/components/ui/ai-command-input';
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-utils/loading-skeletons/dashboard-skeleton";
+import EnhancedDataTable from "@/components/dashboard/enhanced-data-table";
+
+interface AICommandResponse {
+  success: boolean;
+  tasks?: ToDoItem[];
+  filters?: Record<string, string>;
+  message?: string;
+}
 
 export default function TodoPage() {
   const { data: tasks, error, isLoading, isFetching  } = useFetchToDoItems();
   const router = useRouter();
   const [isNavigating, setIsNavigating] = React.useState(false);
   const [cachedTaskCount, setCachedTaskCount] = React.useState(0);
+  const [aiCommandResult, setAICommandResult] = React.useState<AICommandResponse | null>(null);
+
 
     // Show skeleton during initial load OR background refetch
     React.useEffect(() => {
@@ -30,6 +40,17 @@ export default function TodoPage() {
     if (isLoading || isFetching) {
         return <DashboardSkeleton taskCount={skeletonTaskCount} />; 
     }
+
+    const handleAICommandProcessed = (result: AICommandResponse) => {
+      if (result?.success && result?.tasks) {
+        setAICommandResult(result);
+        console.log('AI command processed:', result);
+      }
+    };
+  
+    const handleResetFilters = () => {
+      setAICommandResult(null);
+    };
 
   const handleNavigation = () => {
     setIsNavigating(true);
@@ -57,8 +78,13 @@ export default function TodoPage() {
           {isNavigating ? 'Add New Task...' : 'Add New Task'}
         </Button>
       </div>
-      <DataTable data={tasks} columns={columns} />
-      <AICommandInput onCommandProcessed={console.log} />
+      <EnhancedDataTable 
+        initialData={tasks || []} 
+        aiCommandResult={aiCommandResult}
+        onResetFilters={handleResetFilters}
+      />
+      <AICommandInput onCommandProcessed={handleAICommandProcessed} />
+
     </div>
   );
 }

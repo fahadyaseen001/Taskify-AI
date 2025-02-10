@@ -102,7 +102,16 @@ export class AIAgentService {
        - Can read all tasks with/without filters
        - Can read specific task(s) by Task ID
        - Handle non-filter searches
-       
+       - Extract specific search criteria including: (if mentioned)
+       - Task ID (if mentioned)
+       - Title keywords
+       - Description keywords
+       - Status (exact match)
+       - Priority level
+       - Assignee name
+       - Due date
+       - Due time
+    
     2. Create Operations:
        - Support single/multiple task creation
        - Include filters
@@ -219,7 +228,8 @@ export class AIAgentService {
         if (!command.todoIds?.length) throw new Error('Task ID is required for deletion');
         return await this.deleteTask(command.todoIds[0]);
       case 'read':
-        return await this.readTasks(command.filters, command.todoIds || []);
+        return await this.readTasks(command.filters, command.todoIds || [], userInfo.userId // Pass user ID
+        );
       default:
         throw new Error('Invalid command action');
     }
@@ -272,7 +282,7 @@ export class AIAgentService {
     }
   }
 
-  private static async updateTask(todoId: string, data: Partial<ToDoType>) {
+  private static async updateTask(todoId: string, data: Partial<ToDoType> ) {
     try {
       if (!mongoose.Types.ObjectId.isValid(todoId)) {
         throw new Error('Invalid task ID');
@@ -280,6 +290,7 @@ export class AIAgentService {
 
       const updatedTask = await ToDo.findByIdAndUpdate(
         todoId,
+
         { $set: data },
         { new: true }
       );
@@ -314,20 +325,66 @@ export class AIAgentService {
     }
   }
 
-  private static async readTasks(filters: Record<string, any> = {}, todoIds: string[] = []) {
+  private static async readTasks(filters: Record<string, any> = {}, todoIds: string[] = [],  userId: mongoose.Types.ObjectId // Add userId parameter
+  ) {
     try {
-      let query = { ...filters };
+      let query: any = { 'createdBy.userId': userId};
       
-      // If specific task IDs are provided, add them to the query
+      // Process filters
+      if (filters) {
+        // Handle text search fields
+        if (filters.title) {
+          query.title = { $regex: filters.title, $options: 'i' };
+        }
+        if (filters.description) {
+          query.description = { $regex: filters.description, $options: 'i' };
+        }
+        
+        // Handle exact match fields
+        if (filters.status) {
+          query.status = filters.status;
+        }
+        if (filters.priority) {
+          query.priority = filters.priority;
+        }
+        
+        // Handle date/time
+        if (filters.dueDate) {
+          query.dueDate = filters.dueDate;
+        }
+        if (filters.dueTime) {
+          query.dueTime = filters.dueTime;
+        }
+        
+        // Handle assignee name search
+        if (filters.assigneeName) {
+          const user = await this.findUserByName(filters.assigneeName);
+          if (user) {
+            query['assignee.userId'] = user._id;
+          }
+        }
+      }
+      
+      // Add specific task IDs to query if provided
       if (todoIds.length > 0) {
         query._id = { $in: todoIds };
       }
+  
+      console.log('Query:', query); // Debug log
 
-      const tasks = await ToDo.find(query);
-      return { success: true, tasks };
+      const tasks = await ToDo.find(query).lean();
+      
+      console.log('Found tasks:', tasks.length); // Debug log
+      
+      return {
+        success: true,
+        tasks,
+        filters: filters // Return filters for frontend state management
+      };
     } catch (error) {
       console.error('Error reading tasks:', error);
       throw new Error('Failed to read tasks');
     }
   }
 }
+
