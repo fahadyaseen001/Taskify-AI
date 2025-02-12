@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import { z } from "zod";
 import { userSchema } from "@/schema/user-schema";
 import AxiosInstance from "@/lib/axios-instance";
+import { useUser } from "@/components/providers/user-provider";
 
 
 
@@ -21,6 +22,8 @@ interface SignInResponse {
 
 export const useSignIn = () => {
   const { toast } = useToast();
+  const { updateUserFromToken } = useUser();
+
 
   const signIn = async (data: SignInFormData): Promise<boolean> => {
     try {
@@ -33,7 +36,8 @@ export const useSignIn = () => {
 
       localStorage.setItem('token', token);
 
-      
+        // Update user context immediately after setting token
+        updateUserFromToken();
 
       toast({
         title: "Sign In Successful 🎉",
