@@ -26,6 +26,7 @@ import { formatDate } from "../dashboard/dashboard-utils/date-format";
 import { convertTo24Hour } from "../dashboard/dashboard-utils/time-format";
 import Loader from "../pages/loader";
 import Assignee from "../ui/assignee";
+import TaskDetailFormSkeleton from "../dashboard/dashboard-utils/loading-skeletons/task-detail-form-skeleton";
 
 const TaskDetailForm = () => {
   const params = useParams();
@@ -83,8 +84,7 @@ const TaskDetailForm = () => {
   };
 
   if (!initialDataLoaded) {
-    return <div className="w-full max-w-4xl mx-auto p-4">Loading...</div>;
-
+    return <TaskDetailFormSkeleton />;
   }
 
   return (

@@ -1,4 +1,3 @@
-
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -73,14 +72,22 @@ export const columns: ColumnDef<ToDoItem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => { const title = row.getValue("title") as string; return <span className="font-medium">{title}</span>; },
+    cell: ({ row }) => {
+      const title = row.getValue("title") as string;
+      return <span className="font-medium">{title}</span>;
+    },
+    size: 150,
   },
   {
     accessorKey: "description",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />
     ),
-    cell: ({ row }) => { const description = row.getValue("description") as string; return <span className="font-medium">{description}</span>; },
+    cell: ({ row }) => {
+      const description = row.getValue("description") as string;
+      return <span className="font-medium">{description}</span>;
+    },
+    size: 250,
   },
   {
     accessorKey: "status",
