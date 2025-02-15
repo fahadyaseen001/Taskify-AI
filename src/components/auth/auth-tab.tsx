@@ -13,36 +13,55 @@ export default function AuthTabs() {
   const verified = searchParams ? searchParams.get('verified') : null
   const { toast } = useToast()
   
-  const [queryVerified, setQueryVerified] = React.useState<string | null>(null)
+  // Use useRef instead of state to avoid unnecessary rerenders
+  const verifiedRef = React.useRef<string | null>(null)
 
-  React.useEffect(() => {
-    if (verified !== null && verified !== queryVerified) {
-      setQueryVerified(verified)
-    }
-  }, [verified, queryVerified])
+  // Debounced toast handler
+  const debouncedToast = React.useCallback(
+    React.useMemo(
+      () =>
+        debounce((message: { title: string; description: string; variant?: "destructive" }) => {
+          toast(message)
+        }, 100),
+      [toast]
+    ),
+    []
+  )
 
-  React.useEffect(() => {
-    if (queryVerified) {
-      if (queryVerified === 'true') {
-        toast({
+  // Memoize the verification check
+  const handleVerification = React.useCallback(() => {
+    if (verified !== null && verified !== verifiedRef.current) {
+      verifiedRef.current = verified
+      
+      if (verified === 'true') {
+        debouncedToast({
           title: "Account Created Successfully 🎉",
           description: "Your email has been verified. Please sign in to continue.",
         })
-      } else if (queryVerified === 'false') {
-        toast({
+      } else if (verified === 'false') {
+        debouncedToast({
           title: "Verification Failed",
           description: "Failed to verify your email. Please try signing up again.",
           variant: "destructive"
         })
       }
       
-      // Clean up URL after toast is shown
-      setTimeout(() => {
+      // Use requestAnimationFrame for smoother URL updates
+      requestAnimationFrame(() => {
         const newURL = window.location.pathname
         window.history.pushState({}, '', newURL)
-      }, 100)
+      })
     }
-  }, [queryVerified, toast])
+  }, [verified, debouncedToast])
+
+  // Use layout effect to prioritize verification check
+  React.useLayoutEffect(() => {
+    handleVerification()
+  }, [handleVerification])
+
+  // Memoize the components to prevent unnecessary rerenders
+  const memoizedSignInForm = React.useMemo(() => <SignInForm />, [])
+  const memoizedSignUpForm = React.useMemo(() => <SignUpForm />, [])
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-300 p-4 md:p-8">
@@ -56,12 +75,25 @@ export default function AuthTabs() {
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
         </TabsList>
         <TabsContent value="signin">
-          <SignInForm />
+          {memoizedSignInForm}
         </TabsContent>
         <TabsContent value="signup">
-          <SignUpForm />
+          {memoizedSignUpForm}
         </TabsContent>
       </Tabs>
     </div>
   )
+}
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null
+
+  return (...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
+  }
 }
