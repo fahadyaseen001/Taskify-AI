@@ -6,8 +6,7 @@ import { z } from "zod";
 import { userSchema } from "@/schema/user-schema";
 import AxiosInstance from "@/lib/axios-instance";
 import { useUser } from "@/components/providers/user-provider";
-
-
+import Cookies from 'js-cookie';
 
 interface ErrorResponse {
   error: string;
@@ -19,11 +18,9 @@ interface SignInResponse {
   token: string;
 }
 
-
 export const useSignIn = () => {
   const { toast } = useToast();
   const { updateUserFromToken } = useUser();
-
 
   const signIn = async (data: SignInFormData): Promise<boolean> => {
     try {
@@ -34,17 +31,23 @@ export const useSignIn = () => {
 
       const token = response.data.token;
 
+      // Store in both localStorage and cookies
       localStorage.setItem('token', token);
+      Cookies.set('auth-token', token, { 
+        expires: 1, 
+        path: '/',
+        sameSite: 'strict'
+      });
 
-        // Update user context immediately after setting token
-        updateUserFromToken();
+      // Update user context
+      updateUserFromToken();
 
       toast({
         title: "Sign In Successful 🎉",
         description: "You have successfully signed in to your account."
       });
 
-      return true; // Return true on successful sign in
+      return true;
     } catch (error) {
       let errorMessage = "An error occurred during sign in";
 
@@ -61,7 +64,7 @@ export const useSignIn = () => {
         variant: "destructive"
       });
 
-      return false; // Return false when sign in fails
+      return false;
     }
   };
 

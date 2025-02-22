@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 interface User {
   name: string;
@@ -12,12 +14,14 @@ interface UserContextProps {
   user: User | null;
   setUser: (user: User | null) => void;
   updateUserFromToken: () => void;
+  logout: () => void;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
   const updateUserFromToken = () => {
     const token = localStorage.getItem("token");
@@ -30,20 +34,27 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
       } catch (error) {
         console.error("Error decoding token:", error);
-        setUser(null);
+        logout();
       }
     } else {
       setUser(null);
     }
   };
 
-  // Initialize user data from token when provider mounts
+  const logout = () => {
+    localStorage.removeItem('token');
+    Cookies.remove('auth-token');
+    setUser(null);
+    router.push('/auth');
+  };
+
   useEffect(() => {
     updateUserFromToken();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, updateUserFromToken }}>
+    <UserContext.Provider value={{ user, setUser, updateUserFromToken, logout }}>
       {children}
     </UserContext.Provider>
   );

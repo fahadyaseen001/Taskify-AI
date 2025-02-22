@@ -17,9 +17,9 @@ interface UserNavProps {
   isLoading: boolean;
 }
 
-export function UserNav({ isLoading }: UserNavProps) {
+export function UserNav({ }: UserNavProps) {
   const router = useRouter();
-  const { user, setUser, updateUserFromToken } = useUser();
+  const { user, setUser } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem("token");

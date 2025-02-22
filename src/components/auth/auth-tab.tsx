@@ -17,6 +17,7 @@ export default function AuthTabs() {
   const verifiedRef = React.useRef<string | null>(null)
 
   // Debounced toast handler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedToast = React.useCallback(
     React.useMemo(
       () =>

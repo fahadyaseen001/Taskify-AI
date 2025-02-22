@@ -1,17 +1,17 @@
 'use client'
 
 import * as React from "react";
-import { columns, ToDoItem } from "@/components/dashboard/dashboard-components/columns";
+import { ToDoItem } from "@/components/dashboard/dashboard-components/columns";
 import { MdAddCircleOutline } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { useFetchToDoItems } from "@/hooks/use-read-task";
 import { UserNav } from "@/components/dashboard/dashboard-components/user-nav";
-import { DataTable } from "@/components/dashboard/data-table";
 import { useRouter } from 'next/navigation';
 import Loader from "@/components/pages/loader";
 import AICommandInput from '@/components/ui/ai-command-input';
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-utils/loading-skeletons/dashboard-skeleton";
 import EnhancedDataTable from "@/components/dashboard/enhanced-data-table";
+import AuthProvider from "@/components/providers/auth-provider";
 
 interface AICommandResponse {
   success: boolean;
@@ -21,7 +21,7 @@ interface AICommandResponse {
 }
 
 export default function TodoPage() {
-  const { data: tasks, error, isLoading, isFetching  } = useFetchToDoItems();
+  const { data: tasks, isLoading, isFetching  } = useFetchToDoItems();
   const router = useRouter();
   const [isNavigating, setIsNavigating] = React.useState(false);
   const [cachedTaskCount, setCachedTaskCount] = React.useState(0);
@@ -35,6 +35,7 @@ export default function TodoPage() {
         }
     }, [tasks]);
 
+    // eslint-disable-next-line prefer-const
     let skeletonTaskCount = cachedTaskCount || 0; 
 
     if (isLoading || isFetching) {
@@ -57,6 +58,7 @@ export default function TodoPage() {
   };
 
   return (
+    <AuthProvider>
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">
       <UserNav isLoading={false}/>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -85,5 +87,7 @@ export default function TodoPage() {
       <AICommandInput onCommandProcessed={handleAICommandProcessed} />
 
     </div>
+    </AuthProvider>
+
   );
 }

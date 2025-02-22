@@ -75,6 +75,7 @@ const TaskDetailForm = () => {
     };
 
     loadTaskData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
   const onSubmit = (e: React.FormEvent) => {

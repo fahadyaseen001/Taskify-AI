@@ -18,7 +18,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
-  const { options: assigneeOptions , isLoading, isError } = usePrepareAssigneeOptions()
+  const { options: assigneeOptions , isLoading } = usePrepareAssigneeOptions()
 
   const [inputValue, setInputValue] = useState("")
   
