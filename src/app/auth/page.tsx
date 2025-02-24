@@ -8,11 +8,11 @@ import { Suspense } from "react";
 
 export default function AuthPage() {
   return (
+    <Suspense fallback={<AuthSkeleton />}>
     <BackgroundPaths>
-      <Suspense fallback={<AuthSkeleton />}>
         <AuthTabs />
-      </Suspense>
     </BackgroundPaths>
+      </Suspense>
     
   );
 }
