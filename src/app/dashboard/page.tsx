@@ -12,6 +12,7 @@ import AICommandInput from '@/components/ui/ai-command-input';
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-utils/loading-skeletons/dashboard-skeleton";
 import EnhancedDataTable from "@/components/dashboard/enhanced-data-table";
 import AuthProvider from "@/components/providers/auth-provider";
+import { TextLoop } from "@/components/ui/text-loop";
 
 interface AICommandResponse {
   success: boolean;
@@ -61,12 +62,47 @@ export default function TodoPage() {
     <AuthProvider>
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">
       <UserNav isLoading={false}/>
+
+        
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <div>
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">Welcome back!</h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Here&rsquo;s a list of your tasks for this month!
-          </p>
+          <div className="text-sm md:text-base text-muted-foreground">
+            Here&rsquo;s a list of your tasks for this{' '}
+            <TextLoop 
+              className="overflow-y-clip"
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 40,
+                mass: 1,
+              }}
+              variants={{
+                initial: {
+                  y: 20,
+                  rotateX: 90,
+                  opacity: 0,
+                  filter: 'blur(4px)',
+                },
+                animate: {
+                  y: 0,
+                  rotateX: 0,
+                  opacity: 1,
+                  filter: 'blur(0px)',
+                },
+                exit: {
+                  y: -20,
+                  rotateX: -90,
+                  opacity: 0,
+                  filter: 'blur(4px)',
+                },
+              }}
+            >
+              <span>day 👾</span>
+              <span>week 👽</span>
+              <span>month 🤖</span>
+            </TextLoop>
+          </div>
         </div>
         <Button
           variant="default"
