@@ -68,5 +68,5 @@ To get started with Taskify AI, follow these steps:
 
 ---
 
-Built with ❤️ using modern web technologies for seamless task management.
+Built with ❤️ using modern web technologies for seamless task management using OPENAI
 
